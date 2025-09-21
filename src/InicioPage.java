@@ -1,3 +1,5 @@
+import java.sql.*; // Importar todo el sql 
+import javax.swing.JOptionPane;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -8,6 +10,8 @@
  * @author seba
  */
 public class InicioPage extends javax.swing.JFrame {
+    String url="jdbc:sqlite:base_datos/negocioGlagerman.db";
+    Connection conex;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(InicioPage.class.getName());
 
@@ -18,6 +22,18 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        
+        try{
+            //Class.forName(url);
+            conex = DriverManager.getConnection(url);
+            
+            if (conex != null){
+                JOptionPane.showMessageDialog(null, "Conectado!!");
+            }    
+        } catch (Exception ex){
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex);
+        }
     }
 
     /**

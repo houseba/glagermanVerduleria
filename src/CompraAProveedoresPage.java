@@ -1,8 +1,7 @@
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+import posglagerman.ConexionDB;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -11,14 +10,55 @@
 public class CompraAProveedoresPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CompraAProveedoresPage.class.getName());
+    
+    private void cargarProveedores() {
+        try {
+            Connection conex = ConexionDB.getConexion();
+            Statement stm = conex.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT nombre_proveedor FROM proveedor");
 
-    /**
-     * Creates new form CompraAProveedoresPage
-     */
+            cmbProveedor.removeAllItems(); // Limpia el combo por si acaso
+
+            while (rs.next()) {
+                String nombre = rs.getString("nombre_proveedor");
+                cmbProveedor.addItem(nombre);
+            }
+
+            rs.close();
+            stm.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
+        }
+    }
+    
+    private int obtenerValorUnitario(String nombreProducto) {
+    int valor = -1;
+    try {
+        Connection conex = ConexionDB.getConexion();
+        PreparedStatement ps = conex.prepareStatement(
+            "SELECT precio_unitario_venta FROM producto WHERE nombre_producto = ?"
+        );
+        ps.setString(1, nombreProducto);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            valor = rs.getInt("precio_unitario_venta");
+        }
+
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al obtener precio: " + e.getMessage());
+    }
+    return valor;
+}
+
     public CompraAProveedoresPage() {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        Connection conex = ConexionDB.getConexion();
+        cargarProveedores();
     }
 
     /**
@@ -61,7 +101,6 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         jLabel40.setText("Proveedor");
 
         cmbProveedor.setBackground(new java.awt.Color(237, 237, 237));
-        cmbProveedor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Don Pedro", "AgroDistribuciones", "Condimentos La Chilena", "Item 4" }));
 
         txtProductoProveedor.setBackground(new java.awt.Color(237, 237, 237));
 
@@ -71,12 +110,11 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         jLabel42.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel42.setText("Cantidad:");
 
-        txtCantProveedor.setEditable(false);
         txtCantProveedor.setBackground(new java.awt.Color(237, 237, 237));
 
         cmdAgregarProductoCompra.setBackground(new java.awt.Color(211, 211, 211));
         cmdAgregarProductoCompra.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdAgregarProductoCompra.setText("Agregrar producto");
+        cmdAgregarProductoCompra.setText("Agregar producto");
         cmdAgregarProductoCompra.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdAgregarProductoCompraActionPerformed(evt);
@@ -88,10 +126,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         tblCompra.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblCompra.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "Producto", "Cantidad", "Precio Unitario", "Subtotal"
@@ -218,7 +253,55 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoCompraActionPerformed
-        // TODO add your handling code here:
+    String nombreProducto = txtProductoProveedor.getText().trim();
+    String cantidadTexto = txtCantProveedor.getText().trim();
+
+    if (nombreProducto.isEmpty() || cantidadTexto.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Debes ingresar nombre y cantidad");
+        return;
+    }
+
+    int cantidad;
+    try {
+        cantidad = Integer.parseInt(cantidadTexto);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Cantidad inválida");
+        return;
+    }
+
+    // Obtener precio desde BD
+    int precioUnitario = obtenerValorUnitario(nombreProducto);
+
+    if (precioUnitario == -1) {
+        JOptionPane.showMessageDialog(this, "Producto no encontrado");
+        return;
+    }
+
+    int subtotal = cantidad * precioUnitario;
+
+    // Agregar fila a la tabla
+    DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
+    model.addRow(new Object[]{
+        nombreProducto,
+        cantidad,
+        precioUnitario,
+        subtotal
+    });
+
+    // Actualizar el total (suma de todos los subtotales en la tabla)
+    int total = 0;
+    for (int i = 0; i < model.getRowCount(); i++) {
+        Object valor = model.getValueAt(i, 3); // columna 3 = subtotal
+        if (valor != null) {
+            total += Integer.parseInt(valor.toString());
+        }
+    }
+
+    txtCantProveedor2.setText(String.valueOf(total));
+
+    // Limpiar campos
+    txtProductoProveedor.setText("");
+    txtCantProveedor.setText("");
     }//GEN-LAST:event_cmdAgregarProductoCompraActionPerformed
 
     private void cmdVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdVentasActionPerformed

@@ -1,3 +1,5 @@
+import java.sql.*; // Importar todo el sql 
+import posglagerman.ConexionDB;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -18,6 +20,7 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        Connection conex = ConexionDB.getConexion();
     }
 
     /**
@@ -59,7 +62,7 @@ public class InicioPage extends javax.swing.JFrame {
             }
         });
 
-        cmdCompras.setBackground(new java.awt.Color(211, 211, 211));
+        cmdCompras.setBackground(new java.awt.Color(237, 237, 237));
         cmdCompras.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdCompras.setText("Registrar Compra");
         cmdCompras.addActionListener(new java.awt.event.ActionListener() {
@@ -68,15 +71,15 @@ public class InicioPage extends javax.swing.JFrame {
             }
         });
 
-        cmdProveedores.setBackground(new java.awt.Color(211, 211, 211));
+        cmdProveedores.setBackground(new java.awt.Color(237, 237, 237));
         cmdProveedores.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdProveedores.setText("Administrar Proveedor");
 
-        cmdInventario.setBackground(new java.awt.Color(211, 211, 211));
+        cmdInventario.setBackground(new java.awt.Color(237, 237, 237));
         cmdInventario.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdInventario.setText("Administrar Inventario");
 
-        cmdReportes.setBackground(new java.awt.Color(211, 211, 211));
+        cmdReportes.setBackground(new java.awt.Color(237, 237, 237));
         cmdReportes.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdReportes.setText("Reportes");
 
@@ -113,7 +116,7 @@ public class InicioPage extends javax.swing.JFrame {
             panInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panInicioLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(cmdVentas, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)

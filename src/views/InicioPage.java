@@ -80,6 +80,11 @@ public class InicioPage extends javax.swing.JFrame {
         cmdInventario.setBackground(new java.awt.Color(237, 237, 237));
         cmdInventario.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdInventario.setText("Administrar Inventario");
+        cmdInventario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdInventarioActionPerformed(evt);
+            }
+        });
 
         cmdReportes.setBackground(new java.awt.Color(237, 237, 237));
         cmdReportes.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -154,6 +159,12 @@ public class InicioPage extends javax.swing.JFrame {
         comprasPage.setVisible(true);       
         this.setVisible(false);
     }//GEN-LAST:event_cmdComprasActionPerformed
+
+    private void cmdInventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdInventarioActionPerformed
+        InventarioPage inventarioPage = new InventarioPage();
+        inventarioPage.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_cmdInventarioActionPerformed
 
     /**
      * @param args the command line arguments

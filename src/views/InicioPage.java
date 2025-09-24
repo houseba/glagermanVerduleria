@@ -1,5 +1,6 @@
 package views;
 
+import views.inventario.InventarioPage;
 import java.sql.*; // Importar todo el sql 
 import posglagerman.ConexionDB;
 /*

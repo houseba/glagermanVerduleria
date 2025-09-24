@@ -44,7 +44,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             Connection conex = ConexionDB.getConexion();
             conex.setAutoCommit(false); // no confirmar automaticamente
             
-            // Obtener el rut
+            // Obtener el rut del proveedor
             PreparedStatement psProveedor = conex.prepareStatement(
             "SELECT rut_proveedor FROM proveedor WHERE nombre_proveedor = ?"
             );
@@ -53,7 +53,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             ResultSet rsProv = psProveedor.executeQuery();
             if (rsProv.next()) {
-            rutProveedor = rsProv.getString("rut_proveedor");
+                rutProveedor = rsProv.getString("rut_proveedor");
             } else {
                 JOptionPane.showMessageDialog(this, "Proveedor no encontrado en BD.");
                 return;
@@ -64,7 +64,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             // Insertar en la tabla compra
             PreparedStatement psCompra = conex.prepareStatement(
             "INSERT INTO compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
-            Statement.RETURN_GENERATED_KEYS
+            Statement.RETURN_GENERATED_KEYS // devuelve el id_compra autoincrementable
             );
             
             psCompra.setString(1, rutProveedor);
@@ -74,7 +74,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             int idCompra = -1;
             
             if (rsCompraID.next()) {
-            idCompra = rsCompraID.getInt(1);
+                idCompra = rsCompraID.getInt(1);
             }
             rsCompraID.close();
             psCompra.close();

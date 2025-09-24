@@ -2,12 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package views;
+package views.inventario;
 
 import java.sql.*;
 import posglagerman.ConexionDB;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import views.InicioPage;
 
 /**
  *
@@ -67,7 +68,6 @@ public final class InventarioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);     
-        setSize(800, 600);
         llenaTablaInventario();
     }
 
@@ -89,8 +89,6 @@ public final class InventarioPage extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Administración de inventario");
-        setMaximumSize(new java.awt.Dimension(800, 600));
-        setPreferredSize(new java.awt.Dimension(800, 600));
         setResizable(false);
         setSize(new java.awt.Dimension(800, 600));
 

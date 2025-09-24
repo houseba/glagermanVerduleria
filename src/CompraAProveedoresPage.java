@@ -389,9 +389,6 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
 
     private void cmdCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompraActionPerformed
         RegistrarCompra();
-        VentasPage ventasPage = new VentasPage();
-        ventasPage.setVisible(true);
-        this.setVisible(false);
     }//GEN-LAST:event_cmdCompraActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed

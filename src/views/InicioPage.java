@@ -1,3 +1,5 @@
+package views;
+
 import java.sql.*; // Importar todo el sql 
 import posglagerman.ConexionDB;
 /*

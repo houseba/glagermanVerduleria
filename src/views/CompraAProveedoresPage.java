@@ -1,3 +1,5 @@
+package views;
+
 import posglagerman.ConexionDB;
 import java.sql.*;
 import javax.swing.JOptionPane;
@@ -12,16 +14,15 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CompraAProveedoresPage.class.getName());
     
     private void cargarProveedores() {
+        cmbProveedor.removeAllItems(); // Limpia el combo por si acaso
         try {
             Connection conex = ConexionDB.getConexion();
             Statement stm = conex.createStatement();
             ResultSet rs = stm.executeQuery("SELECT nombre_proveedor FROM proveedor");
 
-            cmbProveedor.removeAllItems(); // Limpia el combo por si acaso
-
             while (rs.next()) {
-                String nombre = rs.getString("nombre_proveedor");
-                cmbProveedor.addItem(nombre);
+                String nombreProveedor = rs.getString("nombre_proveedor");
+                cmbProveedor.addItem(nombreProveedor);
             }
 
             rs.close();
@@ -196,8 +197,10 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         jLabel40.setText("Proveedor");
 
         cmbProveedor.setBackground(new java.awt.Color(237, 237, 237));
+        cmbProveedor.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
 
         txtProductoProveedor.setBackground(new java.awt.Color(237, 237, 237));
+        txtProductoProveedor.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
 
         jLabel41.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel41.setText("búsqueda de producto:");

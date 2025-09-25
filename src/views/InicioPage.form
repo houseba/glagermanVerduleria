@@ -141,6 +141,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Administrar Proveedor"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdProveedoresActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdInventario">
           <Properties>
@@ -152,6 +155,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Administrar Inventario"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdInventarioActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdReportes">
           <Properties>

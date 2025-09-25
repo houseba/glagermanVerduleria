@@ -76,10 +76,20 @@ public class InicioPage extends javax.swing.JFrame {
         cmdProveedores.setBackground(new java.awt.Color(237, 237, 237));
         cmdProveedores.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdProveedores.setText("Administrar Proveedor");
+        cmdProveedores.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdProveedoresActionPerformed(evt);
+            }
+        });
 
         cmdInventario.setBackground(new java.awt.Color(237, 237, 237));
         cmdInventario.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdInventario.setText("Administrar Inventario");
+        cmdInventario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdInventarioActionPerformed(evt);
+            }
+        });
 
         cmdReportes.setBackground(new java.awt.Color(237, 237, 237));
         cmdReportes.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -154,6 +164,18 @@ public class InicioPage extends javax.swing.JFrame {
         comprasPage.setVisible(true);       
         this.setVisible(false);
     }//GEN-LAST:event_cmdComprasActionPerformed
+
+    private void cmdProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdProveedoresActionPerformed
+        AdminProPage administrarPage = new AdminProPage();
+        administrarPage.setVisible(true);   
+        this.setVisible(false);// TODO add your handling code here:
+    }//GEN-LAST:event_cmdProveedoresActionPerformed
+
+    private void cmdInventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdInventarioActionPerformed
+        AdminInvPage administrarInvPage = new AdminInvPage();
+        administrarInvPage.setVisible(true);   
+        this.setVisible(false);// TODO add your handling code here:
+    }//GEN-LAST:event_cmdInventarioActionPerformed
 
     /**
      * @param args the command line arguments

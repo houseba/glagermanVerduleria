@@ -17,6 +17,8 @@ public class AdminInvPage extends javax.swing.JFrame {
      */
     public AdminInvPage() {
         initComponents();
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
 
     /**

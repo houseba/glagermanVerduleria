@@ -17,6 +17,8 @@ public class AdminProPage extends javax.swing.JFrame {
      */
     public AdminProPage() {
         initComponents();
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
 
     /**

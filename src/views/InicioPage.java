@@ -1,16 +1,7 @@
+// prueba de commit
 package views;
-
 import java.sql.*; // Importar todo el sql 
 import posglagerman.ConexionDB;
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-
-/**
- *
- * @author seba
- */
 public class InicioPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(InicioPage.class.getName());

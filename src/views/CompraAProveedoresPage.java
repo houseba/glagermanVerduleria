@@ -1,5 +1,4 @@
 package views;
-
 import posglagerman.ConexionDB;
 import java.sql.*;
 import javax.swing.JOptionPane;

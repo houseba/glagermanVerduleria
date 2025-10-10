@@ -2,7 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package views;
+package views.administrar_inventario;
+
+import views.CompraAProveedoresPage;
+import views.InicioPage;
 
 /**
  *
@@ -48,6 +51,7 @@ public class AdminInvPage extends javax.swing.JFrame {
         cmdSalir1.setText("Salir");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(250, 250, 250));
 
         jLabel39.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         jLabel39.setText("Administrar Inventario");
@@ -68,6 +72,7 @@ public class AdminInvPage extends javax.swing.JFrame {
 
         jLabel1.setText("Busqueda de productos:");
 
+        jTextField1.setBackground(new java.awt.Color(237, 237, 237));
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
@@ -217,7 +222,9 @@ public class AdminInvPage extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdCompras1ActionPerformed
 
     private void cmdCompras2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras2ActionPerformed
-        // TODO add your handling code here:
+        AgregarProductoPage agregarProductoPage = new AgregarProductoPage();
+        agregarProductoPage.setVisible(true);       
+        this.setVisible(false);
     }//GEN-LAST:event_cmdCompras2ActionPerformed
 
     private void cmdCompras3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras3ActionPerformed

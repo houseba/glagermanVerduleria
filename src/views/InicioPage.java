@@ -1,6 +1,6 @@
 // prueba de commit
 package views;
-import java.sql.*; // Importar todo el sql 
+import views.administrar_inventario.AdminInvPage;
 import posglagerman.ConexionDB;
 public class InicioPage extends javax.swing.JFrame {
     
@@ -13,7 +13,7 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        Connection conex = ConexionDB.getConexion();
+        ConexionDB.getConexion();
     }
 
     /**
@@ -37,7 +37,7 @@ public class InicioPage extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panInicio.setBackground(new java.awt.Color(249, 250, 251));
+        panInicio.setBackground(new java.awt.Color(250, 250, 250));
         panInicio.setMaximumSize(new java.awt.Dimension(800, 600));
         panInicio.setMinimumSize(new java.awt.Dimension(800, 600));
         panInicio.setPreferredSize(new java.awt.Dimension(800, 600));

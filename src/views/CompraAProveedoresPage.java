@@ -54,7 +54,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             if (rsProv.next()) {
             rutProveedor = rsProv.getString("rut_proveedor");
             } else {
-                JOptionPane.showMessageDialog(this, "Proveedor no encontrado en BD.");
+                JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
                 return;
             }
             rsProv.close();
@@ -62,7 +62,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             // Insertar en la tabla compra
             PreparedStatement psCompra = conex.prepareStatement(
-            "INSERT INTO compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
+                "INSERT INTO compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
             Statement.RETURN_GENERATED_KEYS
             );
             
@@ -84,24 +84,24 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             // Insertar en tabla detalle_compra
             PreparedStatement psDetalle = conex.prepareStatement(
-                "INSERT INTO detalle_compra (id_compra, id_producto, cantidad_compra, precio_unitario_compra) VALUES (?, ?, ?, ?)"
+                "INSERT INTO detalle_compra (id_compra, cod_producto, cantidad_compra, precio_unitario_compra) VALUES (?, ?, ?, ?)"
             );
             DefaultTableModel modelo = (DefaultTableModel) tblCompra.getModel();
             
             for (int i=0;i<modelo.getRowCount(); i++){
                 String nombreProducto = modelo.getValueAt(i,0).toString();
                 int cantidad = Integer.parseInt(modelo.getValueAt(i, 1).toString());
-                int precioUnitario = Integer.parseInt(modelo.getValueAt(i, 2).toString());
+                int precioUnitarioCompra = Integer.parseInt(modelo.getValueAt(i, 2).toString());
                 
-                // obtener id_producto
-                int idProducto = -1;
+                // obtener cod_producto
+                String codProducto;
                 PreparedStatement psProducto = conex.prepareStatement(
-                    "SELECT id_producto FROM producto WHERE nombre_producto = ?"
+                    "SELECT cod_producto FROM producto WHERE nombre_producto = ?"
                 );
                 psProducto.setString(1,nombreProducto);
                 ResultSet rsProducto = psProducto.executeQuery();
                 if (rsProducto.next()) {
-                    idProducto = rsProducto.getInt("id_producto");
+                    codProducto = rsProducto.getString("cod_producto");
                 } else {
                     JOptionPane.showMessageDialog(null, "Producto no encontrado: " + nombreProducto);
                     continue; // Salta el procucto y pasa al siguiente
@@ -111,9 +111,9 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
 
                 // Insertar el detalle
                 psDetalle.setInt(1, idCompra);
-                psDetalle.setInt(2, idProducto);
+                psDetalle.setString(2, codProducto);
                 psDetalle.setInt(3, cantidad);
-                psDetalle.setInt(4, precioUnitario);
+                psDetalle.setInt(4, precioUnitarioCompra);
                 psDetalle.executeUpdate();
             }
             psDetalle.close();
@@ -128,33 +128,11 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             }
     }
     
-    private int obtenerValorUnitario(String nombreProducto) {
-    int valor = -1;
-    try {
-        Connection conex = ConexionDB.getConexion();
-        PreparedStatement ps = conex.prepareStatement(
-            "SELECT precio_unitario_venta FROM producto WHERE nombre_producto = ?"
-        );
-        ps.setString(1, nombreProducto);
-
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            valor = rs.getInt("precio_unitario_venta");
-        }
-
-        rs.close();
-        ps.close();
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error al obtener precio: " + e.getMessage());
-    }
-    return valor;
-}
 
     public CompraAProveedoresPage() {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        Connection conex = ConexionDB.getConexion();
         cargarProveedores();
     }
 
@@ -182,6 +160,8 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         txtTotal = new javax.swing.JTextField();
         cmdCompra = new javax.swing.JButton();
         cmdSalir = new javax.swing.JButton();
+        jLabel43 = new javax.swing.JLabel();
+        txtPrecioCompra = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new javax.swing.OverlayLayout(getContentPane()));
@@ -197,6 +177,11 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
 
         cmbProveedor.setBackground(new java.awt.Color(237, 237, 237));
         cmbProveedor.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        cmbProveedor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbProveedorActionPerformed(evt);
+            }
+        });
 
         txtProductoProveedor.setBackground(new java.awt.Color(237, 237, 237));
         txtProductoProveedor.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
@@ -226,7 +211,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Producto", "Cantidad", "Precio Unitario", "Subtotal"
+                "Producto", "Cantidad", "Precio compra", "Subtotal"
             }
         ));
         jScrollPane7.setViewportView(tblCompra);
@@ -255,51 +240,60 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             }
         });
 
+        jLabel43.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel43.setText("Precio de compra: $");
+
+        txtPrecioCompra.setBackground(new java.awt.Color(237, 237, 237));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(cmdCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(269, 269, 269)
+                .addComponent(jLabel39)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane7)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(cmdAgregarProductoCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(20, 20, 20)
+                                .addComponent(jLabel44, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel41)
                                     .addComponent(jLabel40))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtProductoProveedor)
-                                    .addComponent(cmbProveedor, 0, 386, Short.MAX_VALUE))
-                                .addGap(78, 78, 78)
-                                .addComponent(jLabel42)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtCantProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(10, 10, 10)))
-                .addGap(24, 24, 24))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane7)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel44, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addComponent(cmbProveedor, 0, 306, Short.MAX_VALUE)
+                                    .addComponent(txtProductoProveedor))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel43)
+                                    .addComponent(jLabel42))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(txtCantProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(106, 106, 106))
+                                    .addComponent(txtPrecioCompra, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(cmdCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(cmdAgregarProductoCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)))
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(269, 269, 269)
-                .addComponent(jLabel39)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -309,13 +303,15 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmbProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel40))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtProductoProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel41)
+                    .addComponent(jLabel40)
                     .addComponent(jLabel42)
                     .addComponent(txtCantProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel41)
+                    .addComponent(txtProductoProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel43)
+                    .addComponent(txtPrecioCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(cmdAgregarProductoCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -324,10 +320,10 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel44)
                     .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(cmdCompra, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE)
-                    .addComponent(cmdSalir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cmdCompra, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -337,38 +333,54 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoCompraActionPerformed
-    String nombreProducto = txtProductoProveedor.getText().trim();
+    String codProducto = txtProductoProveedor.getText().trim();
     String cantidadTexto = txtCantProveedor.getText().trim();
-
-    if (nombreProducto.isEmpty() || cantidadTexto.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Debes ingresar nombre y cantidad");
+    String precioTexto = txtPrecioCompra.getText().trim();
+   
+    if (codProducto.isEmpty() || cantidadTexto.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Debes ingresar producto y cantidad");
         return;
     }
 
-    int cantidad;
+    int cantidad, precioCompra;
     try {
         cantidad = Integer.parseInt(cantidadTexto);
+        precioCompra = Integer.parseInt(precioTexto);
     } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Cantidad inválida");
+        JOptionPane.showMessageDialog(this, "Cantidad o precio inválido");
         return;
     }
 
-    // Obtener precio desde BD
-    int precioUnitario = obtenerValorUnitario(nombreProducto);
-
-    if (precioUnitario == -1) {
-        JOptionPane.showMessageDialog(this, "Producto no encontrado");
+    // Buscar nombre de producto
+    String nombreProducto;
+    try {
+        Connection conex = ConexionDB.getConexion();
+        PreparedStatement psProducto = conex.prepareStatement(
+             "SELECT nombre_producto FROM producto WHERE cod_producto = ?"
+        );
+        psProducto.setString(1, codProducto);
+        
+        ResultSet rsProducto = psProducto.executeQuery();
+        if (rsProducto.next()) {
+            nombreProducto = rsProducto.getString("nombre_producto");
+        } else {
+            JOptionPane.showMessageDialog(this, "Producto no encontrado para código: " + codProducto);
+            return;
+        }
+        
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error al buscar producto: " + ex.getMessage());
         return;
     }
 
-    int subtotal = cantidad * precioUnitario;
+    int subtotal = cantidad * precioCompra;
 
     // Agregar fila a la tabla
     DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
     model.addRow(new Object[]{
         nombreProducto,
         cantidad,
-        precioUnitario,
+        precioCompra,
         subtotal
     });
 
@@ -397,6 +409,10 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         inicioPage.setVisible(true);
         this.dispose(); 
     }//GEN-LAST:event_cmdSalirActionPerformed
+
+    private void cmbProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbProveedorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbProveedorActionPerformed
 
     /**
      * @param args the command line arguments
@@ -432,11 +448,13 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
     private javax.swing.JLabel jLabel44;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTable tblCompra;
     private javax.swing.JTextField txtCantProveedor;
+    private javax.swing.JTextField txtPrecioCompra;
     private javax.swing.JTextField txtProductoProveedor;
     private javax.swing.JTextField txtTotal;
     // End of variables declaration//GEN-END:variables

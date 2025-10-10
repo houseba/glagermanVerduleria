@@ -47,6 +47,7 @@ public class AdminProPage extends javax.swing.JFrame {
         jLabel44 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(250, 250, 250));
 
         jLabel39.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         jLabel39.setText("Administrar Proveedores");
@@ -122,7 +123,7 @@ public class AdminProPage extends javax.swing.JFrame {
         jScrollPane7.setViewportView(tblCompra);
 
         jLabel44.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel44.setText("Rut;");
+        jLabel44.setText("Rut:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

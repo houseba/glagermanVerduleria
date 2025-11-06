@@ -2,12 +2,22 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
+
+
 package views;
 
 /**
  *
  * @author Usuario
  */
+
+import Utils.ValidarRut;
+import posglagerman.ConexionDB;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 public class AdminProPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AdminProPage.class.getName());
@@ -204,7 +214,54 @@ public class AdminProPage extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdCompra1ActionPerformed
 
     private void cmdCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompraActionPerformed
+        String rut = jTextField1.getText().trim();
+        String nombre = jTextField3.getText().trim();
+        String telefono = jTextField2.getText().trim();
+        String direccion = jTextField4.getText().trim();
 
+        // Quitar puntos y guiones del RUT
+        rut = rut.replace(".", "").replace("-", "");
+
+        // Validación del RUT
+        if (!ValidarRut.esValido(rut)) {
+            JOptionPane.showMessageDialog(this, "❌ El RUT ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Validar que los campos obligatorios estén completos
+        if (nombre.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor completa todos los campos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Connection conn = ConexionDB.getConexion();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            String sql = "INSERT INTO proveedor (rut_proveedor, nombre_proveedor, contacto_proveedor, direccion_proveedor) VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, rut);
+            ps.setString(2, nombre);
+            ps.setString(3, telefono);
+            ps.setString(4, direccion);
+            ps.executeUpdate();
+            
+            
+
+            JOptionPane.showMessageDialog(this, "Proveedor agregado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_cmdCompraActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed

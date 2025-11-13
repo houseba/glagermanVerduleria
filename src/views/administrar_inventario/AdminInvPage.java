@@ -41,10 +41,10 @@ public class AdminInvPage extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         cmdSalir = new javax.swing.JButton();
-        cmdCompras = new javax.swing.JButton();
-        cmdCompras1 = new javax.swing.JButton();
-        cmdCompras2 = new javax.swing.JButton();
-        cmdCompras3 = new javax.swing.JButton();
+        cmdEditar = new javax.swing.JButton();
+        cmdEliminar = new javax.swing.JButton();
+        cmdAgregar = new javax.swing.JButton();
+        cmdActualizar = new javax.swing.JButton();
 
         cmdSalir1.setBackground(new java.awt.Color(244, 168, 168));
         cmdSalir1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -95,39 +95,39 @@ public class AdminInvPage extends javax.swing.JFrame {
             }
         });
 
-        cmdCompras.setBackground(new java.awt.Color(168, 197, 227));
-        cmdCompras.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdCompras.setText("Editar Producto");
-        cmdCompras.addActionListener(new java.awt.event.ActionListener() {
+        cmdEditar.setBackground(new java.awt.Color(168, 197, 227));
+        cmdEditar.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdEditar.setText("Editar Producto");
+        cmdEditar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdComprasActionPerformed(evt);
+                cmdEditarActionPerformed(evt);
             }
         });
 
-        cmdCompras1.setBackground(new java.awt.Color(168, 197, 227));
-        cmdCompras1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdCompras1.setText("Eliminar");
-        cmdCompras1.addActionListener(new java.awt.event.ActionListener() {
+        cmdEliminar.setBackground(new java.awt.Color(168, 197, 227));
+        cmdEliminar.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdEliminar.setText("Eliminar");
+        cmdEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdCompras1ActionPerformed(evt);
+                cmdEliminarActionPerformed(evt);
             }
         });
 
-        cmdCompras2.setBackground(new java.awt.Color(168, 197, 227));
-        cmdCompras2.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdCompras2.setText("Agregar Producto");
-        cmdCompras2.addActionListener(new java.awt.event.ActionListener() {
+        cmdAgregar.setBackground(new java.awt.Color(168, 197, 227));
+        cmdAgregar.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdAgregar.setText("Agregar Producto");
+        cmdAgregar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdCompras2ActionPerformed(evt);
+                cmdAgregarActionPerformed(evt);
             }
         });
 
-        cmdCompras3.setBackground(new java.awt.Color(168, 197, 227));
-        cmdCompras3.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdCompras3.setText("Actualizar");
-        cmdCompras3.addActionListener(new java.awt.event.ActionListener() {
+        cmdActualizar.setBackground(new java.awt.Color(168, 197, 227));
+        cmdActualizar.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdActualizar.setText("Actualizar");
+        cmdActualizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdCompras3ActionPerformed(evt);
+                cmdActualizarActionPerformed(evt);
             }
         });
 
@@ -156,16 +156,16 @@ public class AdminInvPage extends javax.swing.JFrame {
                             .addComponent(jScrollPane7)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(cmdCompras, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cmdCompras2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(cmdCompras3, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(cmdActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(cmdCompras1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(0, 0, Short.MAX_VALUE)))))))
                 .addContainerGap())
         );
@@ -183,14 +183,14 @@ public class AdminInvPage extends javax.swing.JFrame {
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cmdCompras1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdCompras2, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(cmdCompras, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(cmdCompras3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmdActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -211,25 +211,25 @@ public class AdminInvPage extends javax.swing.JFrame {
         this.dispose(); // Cerrar el sistema
     }//GEN-LAST:event_cmdSalirActionPerformed
 
-    private void cmdComprasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdComprasActionPerformed
+    private void cmdEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditarActionPerformed
         CompraAProveedoresPage comprasPage = new CompraAProveedoresPage();
         comprasPage.setVisible(true);
         this.setVisible(false);
-    }//GEN-LAST:event_cmdComprasActionPerformed
+    }//GEN-LAST:event_cmdEditarActionPerformed
 
-    private void cmdCompras1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras1ActionPerformed
+    private void cmdEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEliminarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_cmdCompras1ActionPerformed
+    }//GEN-LAST:event_cmdEliminarActionPerformed
 
-    private void cmdCompras2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras2ActionPerformed
+    private void cmdAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarActionPerformed
         AgregarProductoPage agregarProductoPage = new AgregarProductoPage();
         agregarProductoPage.setVisible(true);       
         this.setVisible(false);
-    }//GEN-LAST:event_cmdCompras2ActionPerformed
+    }//GEN-LAST:event_cmdAgregarActionPerformed
 
-    private void cmdCompras3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras3ActionPerformed
+    private void cmdActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdActualizarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_cmdCompras3ActionPerformed
+    }//GEN-LAST:event_cmdActualizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -257,10 +257,10 @@ public class AdminInvPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cmdCompras;
-    private javax.swing.JButton cmdCompras1;
-    private javax.swing.JButton cmdCompras2;
-    private javax.swing.JButton cmdCompras3;
+    private javax.swing.JButton cmdActualizar;
+    private javax.swing.JButton cmdAgregar;
+    private javax.swing.JButton cmdEditar;
+    private javax.swing.JButton cmdEliminar;
     private javax.swing.JButton cmdSalir;
     private javax.swing.JButton cmdSalir1;
     private javax.swing.JButton jButton1;

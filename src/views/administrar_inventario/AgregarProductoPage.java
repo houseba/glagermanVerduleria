@@ -132,7 +132,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        cmdCompras2 = new javax.swing.JButton();
+        cmdAgregarProducto = new javax.swing.JButton();
         cmdSalir = new javax.swing.JButton();
         txtNomProducto = new javax.swing.JTextField();
         txtCodProducto = new javax.swing.JTextField();
@@ -171,18 +171,20 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel7.setText("Categoria");
 
-        cmdCompras2.setBackground(new java.awt.Color(168, 197, 227));
-        cmdCompras2.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdCompras2.setText("Agregar Producto");
-        cmdCompras2.addActionListener(new java.awt.event.ActionListener() {
+        cmdAgregarProducto.setBackground(new java.awt.Color(168, 197, 227));
+        cmdAgregarProducto.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdAgregarProducto.setText("Agregar Producto");
+        cmdAgregarProducto.setName(""); // NOI18N
+        cmdAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdCompras2ActionPerformed(evt);
+                cmdAgregarProductoActionPerformed(evt);
             }
         });
 
         cmdSalir.setBackground(new java.awt.Color(244, 168, 168));
         cmdSalir.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdSalir.setText("Salir");
+        cmdSalir.setName(""); // NOI18N
         cmdSalir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdSalirActionPerformed(evt);
@@ -223,7 +225,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(cmdCompras2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmdAgregarProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
@@ -277,9 +279,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(23, 23, 23)
                         .addComponent(jLabel4))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(cmbUMedida, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(cmbUMedida, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -295,7 +295,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                 .addGap(123, 123, 123)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdCompras2, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmdAgregarProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -313,10 +313,10 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cmdCompras2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompras2ActionPerformed
+    private void cmdAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoActionPerformed
         // TODO: agregar la logica para insertar producto nuevo en la base de datos
         insertarProducto();
-    }//GEN-LAST:event_cmdCompras2ActionPerformed
+    }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
         InicioPage inicioPage = new InicioPage();
@@ -352,7 +352,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> cmbCategoria;
     private javax.swing.JComboBox<String> cmbUMedida;
-    private javax.swing.JButton cmdCompras2;
+    private javax.swing.JButton cmdAgregarProducto;
     private javax.swing.JButton cmdSalir;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

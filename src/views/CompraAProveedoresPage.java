@@ -214,6 +214,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                 "Producto", "Cantidad", "Precio compra", "Subtotal"
             }
         ));
+        tblCompra.setFocusable(false);
         jScrollPane7.setViewportView(tblCompra);
 
         jLabel44.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N

@@ -64,18 +64,18 @@
                           <Component id="jScrollPane7" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="cmdCompras" min="-2" pref="194" max="-2" attributes="0"/>
-                                  <Component id="cmdCompras2" min="-2" pref="194" max="-2" attributes="0"/>
+                                  <Component id="cmdEditar" min="-2" pref="194" max="-2" attributes="0"/>
+                                  <Component id="cmdAgregar" min="-2" pref="194" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Component id="cmdCompras3" min="-2" pref="194" max="-2" attributes="0"/>
+                                      <Component id="cmdActualizar" min="-2" pref="194" max="-2" attributes="0"/>
                                       <EmptySpace max="32767" attributes="0"/>
                                       <Component id="cmdSalir" min="-2" pref="189" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" attributes="0">
-                                      <Component id="cmdCompras1" min="-2" pref="194" max="-2" attributes="0"/>
+                                      <Component id="cmdEliminar" min="-2" pref="194" max="-2" attributes="0"/>
                                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
@@ -102,15 +102,15 @@
               <Component id="jScrollPane7" pref="292" max="32767" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="cmdCompras1" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
-                  <Component id="cmdCompras2" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
+                  <Component id="cmdEliminar" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
+                  <Component id="cmdAgregar" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="cmdSalir" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="cmdCompras" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
-                      <Component id="cmdCompras3" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
+                      <Component id="cmdEditar" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
+                      <Component id="cmdActualizar" alignment="3" min="-2" pref="74" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -198,7 +198,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdSalirActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="cmdCompras">
+    <Component class="javax.swing.JButton" name="cmdEditar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="e3" green="c5" red="a8" type="rgb"/>
@@ -209,10 +209,10 @@
         <Property name="text" type="java.lang.String" value="Editar Producto"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdComprasActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdEditarActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="cmdCompras1">
+    <Component class="javax.swing.JButton" name="cmdEliminar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="e3" green="c5" red="a8" type="rgb"/>
@@ -223,10 +223,10 @@
         <Property name="text" type="java.lang.String" value="Eliminar"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdCompras1ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdEliminarActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="cmdCompras2">
+    <Component class="javax.swing.JButton" name="cmdAgregar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="e3" green="c5" red="a8" type="rgb"/>
@@ -237,10 +237,10 @@
         <Property name="text" type="java.lang.String" value="Agregar Producto"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdCompras2ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdAgregarActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="cmdCompras3">
+    <Component class="javax.swing.JButton" name="cmdActualizar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="e3" green="c5" red="a8" type="rgb"/>
@@ -251,7 +251,7 @@
         <Property name="text" type="java.lang.String" value="Actualizar"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdCompras3ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdActualizarActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

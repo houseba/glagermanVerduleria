@@ -38,7 +38,7 @@ public class VentasPage extends javax.swing.JFrame {
         cmdAgregarProducto = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        TblVenta = new javax.swing.JTable();
         cmdConfirmarVenta = new javax.swing.JButton();
         cmdCancelarVenta = new javax.swing.JButton();
 
@@ -62,12 +62,12 @@ public class VentasPage extends javax.swing.JFrame {
         });
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel4.setText("búsqueda de producto:");
+        jLabel4.setText("Código de producto:");
 
-        jTable1.setAutoCreateRowSorter(true);
-        jTable1.setBackground(new java.awt.Color(237, 237, 237));
-        jTable1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        TblVenta.setAutoCreateRowSorter(true);
+        TblVenta.setBackground(new java.awt.Color(237, 237, 237));
+        TblVenta.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        TblVenta.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -94,7 +94,7 @@ public class VentasPage extends javax.swing.JFrame {
                 "Producto", "Cantidad", "Precio Unitario", "Subtotal"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(TblVenta);
 
         cmdConfirmarVenta.setBackground(new java.awt.Color(168, 197, 227));
         cmdConfirmarVenta.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -212,6 +212,7 @@ public class VentasPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable TblVenta;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton cmdAgregarProducto;
     private javax.swing.JButton cmdCancelarVenta;
@@ -220,7 +221,6 @@ public class VentasPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField txtProducto;
     // End of variables declaration//GEN-END:variables
 }

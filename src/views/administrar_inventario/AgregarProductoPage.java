@@ -20,15 +20,13 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         cmbCategoria.removeAllItems();
         try{
             Connection conex = ConexionDB.getConexion();
-            Statement stm = conex.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria");
-            
-            while (rs.next()) {
-                String nombreCategoria = rs.getString("nombre_categoria");
-                cmbCategoria.addItem(nombreCategoria);
+            try (Statement stm = conex.createStatement(); ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria")) {
+                
+                while (rs.next()) {
+                    String nombreCategoria = rs.getString("nombre_categoria");
+                    cmbCategoria.addItem(nombreCategoria);
+                }
             }
-            rs.close();
-            stm.close();
         }catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar categorias: " + e.getMessage());
         }
@@ -218,10 +216,6 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(305, Short.MAX_VALUE)
-                .addComponent(jLabel39)
-                .addGap(292, 292, 292))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -256,13 +250,17 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                                     .addComponent(txtNomProducto)
                                     .addComponent(cmbUMedida, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(121, 121, 121))))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(299, 299, 299)
+                .addComponent(jLabel39)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(26, 26, 26)
                 .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(90, 90, 90)
+                .addGap(70, 70, 70)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtCodProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))

@@ -56,7 +56,6 @@ public class AdminProPage extends javax.swing.JFrame {
         cmdEliminarProveedor = new javax.swing.JButton();
         cmdAgregarProveedor = new javax.swing.JButton();
         cmdSalir = new javax.swing.JButton();
-        cmdActualizarProveedor = new javax.swing.JButton();
         txtRut = new javax.swing.JTextField();
         txtTelefono = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
@@ -103,16 +102,6 @@ public class AdminProPage extends javax.swing.JFrame {
         cmdSalir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdSalirActionPerformed(evt);
-            }
-        });
-
-        cmdActualizarProveedor.setBackground(new java.awt.Color(168, 197, 227));
-        cmdActualizarProveedor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdActualizarProveedor.setText("Actualizar");
-        cmdActualizarProveedor.setActionCommand("");
-        cmdActualizarProveedor.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdActualizarProveedorActionPerformed(evt);
             }
         });
 
@@ -181,10 +170,8 @@ public class AdminProPage extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(cmdActualizarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cmdEliminarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
                         .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -218,7 +205,6 @@ public class AdminProPage extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
                     .addComponent(cmdAgregarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmdActualizarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdEliminarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -331,57 +317,6 @@ public class AdminProPage extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_cmdSalirActionPerformed
 
-    private void cmdActualizarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdActualizarProveedorActionPerformed
-        int rowSeleccionada = tblProveedores.getSelectedRow();
-        if (rowSeleccionada == -1) {
-            JOptionPane.showMessageDialog(this, "Selecciona un proveedor en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        String rut = txtRut.getText().trim();
-        String nombre = txtNombre.getText().trim();
-        String telefono = txtTelefono.getText().trim();
-        String direccion = txtDireccion.getText().trim();
-        
-        if (rut.isEmpty() || nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "RUT y Nombre son obligatorios.");
-            return;
-        }
-        
-        DefaultTableModel m = (DefaultTableModel) tblProveedores.getModel();
-        String rutOriginal = String.valueOf(m.getValueAt(rowSeleccionada, 0));
-        
-        try{
-            Connection conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false);
-            try (Statement stm = conex.createStatement()) {
-                stm.execute("PRAGMA foreign_keys = ON");
-            }
-            
-            String sql = "UPDATE proveedor " +
-                     "SET rut_proveedor = ?, nombre_proveedor = ?, contacto_proveedor = ?, direccion_proveedor = ? " +
-                     "WHERE rut_proveedor = ?";
-        
-            PreparedStatement ps = conex.prepareStatement(sql);
-            ps.setString(1, rut);
-            ps.setString(2, nombre);
-            ps.setString(3, telefono);
-            ps.setString(4, direccion);
-            ps.setString(5, rutOriginal);
-                
-            int rows = ps.executeUpdate();
-            if (rows == 0) {
-                conex.rollback();
-                JOptionPane.showMessageDialog(this, "No se encontró el proveedor a actualizar.");
-                return;
-            }
-            conex.commit();
-        } catch (HeadlessException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al actualizar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        ListarProveedores();    
-    }//GEN-LAST:event_cmdActualizarProveedorActionPerformed
-
     private void txtRutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRutActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtRutActionPerformed
@@ -422,7 +357,6 @@ public class AdminProPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cmdActualizarProveedor;
     private javax.swing.JButton cmdAgregarProveedor;
     private javax.swing.JButton cmdEliminarProveedor;
     private javax.swing.JButton cmdSalir;

@@ -1,8 +1,6 @@
 package posglagerman;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.io.File;
 import javax.swing.JOptionPane;
 
@@ -43,21 +41,23 @@ public class ConexionDB {
 
     // MÉTODO CORRECTO: SIEMPRE DEVOLVER UNA CONEXIÓN NUEVA
     public static Connection getConexion() {
-
+        final String DB_URL = "jdbc:sqlite:base_datos/bd_pos_glagerman.db";
         try {
-            File dbFile = new File(DB_PATH);
+            // Carga explícita por si el auto-registro falla
+            Class.forName("org.sqlite.JDBC");
 
-            if (!dbFile.exists()) {
-                System.err.println("ERROR: Base de datos no encontrada: " + DB_PATH);
-                return null;
+            Connection cn = DriverManager.getConnection(DB_URL);
+            try (Statement st = cn.createStatement()) {
+                st.execute("PRAGMA foreign_keys = ON");
+                st.execute("PRAGMA busy_timeout = 5000");  // espera 5s en lock
+                st.execute("PRAGMA journal_mode = WAL");
+                st.execute("PRAGMA synchronous = NORMAL");
             }
-
-            // Siempre crea una nueva conexión
-            return DriverManager.getConnection(URL);
-
+            return cn;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Falta el driver SQLite JDBC (org.xerial:sqlite-jdbc). Agrégalo al proyecto.", e);
         } catch (SQLException e) {
-            System.err.println("ERROR de conexión: " + e.getMessage());
-            return null;
+            throw new RuntimeException("No se pudo abrir la BD en: " + DB_URL + " -> " + e.getMessage(), e);
         }
     }
 }

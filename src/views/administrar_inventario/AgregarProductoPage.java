@@ -20,15 +20,13 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         cmbCategoria.removeAllItems();
         try{
             Connection conex = ConexionDB.getConexion();
-            Statement stm = conex.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria");
-            
-            while (rs.next()) {
-                String nombreCategoria = rs.getString("nombre_categoria");
-                cmbCategoria.addItem(nombreCategoria);
+            try (Statement stm = conex.createStatement(); ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria")) {
+                
+                while (rs.next()) {
+                    String nombreCategoria = rs.getString("nombre_categoria");
+                    cmbCategoria.addItem(nombreCategoria);
+                }
             }
-            rs.close();
-            stm.close();
         }catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar categorias: " + e.getMessage());
         }

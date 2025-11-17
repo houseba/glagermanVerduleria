@@ -13,34 +13,31 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CompraAProveedoresPage.class.getName());
     
     private void cargarProveedores() {
-        cmbProveedor.removeAllItems(); // Limpia el combo por si acaso
-        try {
-            Connection conex = ConexionDB.getConexion();
+        cmbProveedor.removeAllItems();
+        String sql = "SELECT nombre_proveedor FROM proveedor";
+        try (Connection conex = ConexionDB.getConexion();
             Statement stm = conex.createStatement();
-            ResultSet rs = stm.executeQuery("SELECT nombre_proveedor FROM proveedor");
-
+            ResultSet rs = stm.executeQuery(sql)) {
             while (rs.next()) {
-                String nombreProveedor = rs.getString("nombre_proveedor");
-                cmbProveedor.addItem(nombreProveedor);
+                cmbProveedor.addItem(rs.getString("nombre_proveedor"));
             }
-
-            rs.close();
-            stm.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
         }
     }
+
     
     private void RegistrarCompra() {
         String nombreProveedor = String.valueOf(cmbProveedor.getSelectedItem());
         String rutProveedor;
+        Connection conex = null;  
         
         try{
             if (tblCompra.getRowCount() == 0) {
                 JOptionPane.showMessageDialog(null, "Debes agregar al menos 1 producto.");
                 return;
             }
-            Connection conex = ConexionDB.getConexion();
+            conex = ConexionDB.getConexion();
             conex.setAutoCommit(false); // no confirmar automaticamente
             
             // Obtener el rut
@@ -52,9 +49,10 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             ResultSet rsProv = psProveedor.executeQuery();
             if (rsProv.next()) {
-            rutProveedor = rsProv.getString("rut_proveedor");
+                rutProveedor = rsProv.getString("rut_proveedor");
             } else {
                 JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
+                conex.rollback();
                 return;
             }
             rsProv.close();
@@ -123,9 +121,15 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             modelo.setRowCount(0);
             txtTotal.setText("");
             
-            } catch (Exception e){
-                JOptionPane.showMessageDialog(null, "Error al registrar compra: " + e);
+        } catch (Exception e){
+            try { if (conex != null) conex.rollback(); } catch (SQLException ignore) {}
+            JOptionPane.showMessageDialog(null, "Error al registrar compra: " + e.getMessage());
+        } finally {
+            if (conex != null) {
+                try { conex.setAutoCommit(true); } catch (SQLException ignore) {}
+                try { conex.close(); } catch (SQLException ignore) {}   // <- cierra SIEMPRE
             }
+        }
     }
     
 
@@ -335,71 +339,69 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoCompraActionPerformed
-    String codProducto = txtProductoProveedor.getText().trim();
-    String cantidadTexto = txtCantProveedor.getText().trim();
-    String precioTexto = txtPrecioCompra.getText().trim();
-   
-    if (codProducto.isEmpty() || cantidadTexto.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Debes ingresar producto y cantidad");
-        return;
-    }
+        String codProducto = txtProductoProveedor.getText().trim();
+        String cantidadTexto = txtCantProveedor.getText().trim();
+        String precioTexto = txtPrecioCompra.getText().trim();
 
-    int cantidad, precioCompra;
-    try {
-        cantidad = Integer.parseInt(cantidadTexto);
-        precioCompra = Integer.parseInt(precioTexto);
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Cantidad o precio inválido");
-        return;
-    }
-
-    // Buscar nombre de producto
-    String nombreProducto;
-    try {
-        Connection conex = ConexionDB.getConexion();
-        PreparedStatement psProducto = conex.prepareStatement(
-             "SELECT nombre_producto FROM producto WHERE cod_producto = ?"
-        );
-        psProducto.setString(1, codProducto);
-        
-        ResultSet rsProducto = psProducto.executeQuery();
-        if (rsProducto.next()) {
-            nombreProducto = rsProducto.getString("nombre_producto");
-        } else {
-            JOptionPane.showMessageDialog(this, "Producto no encontrado para código: " + codProducto);
+        if (codProducto.isEmpty() || cantidadTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes ingresar producto y cantidad");
             return;
         }
-        
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al buscar producto: " + ex.getMessage());
-        return;
-    }
 
-    int subtotal = cantidad * precioCompra;
-
-    // Agregar fila a la tabla
-    DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
-    model.addRow(new Object[]{
-        nombreProducto,
-        cantidad,
-        precioCompra,
-        subtotal
-    });
-
-    // Actualizar el total (suma de todos los subtotales en la tabla)
-    int total = 0;
-    for (int i = 0; i < model.getRowCount(); i++) {
-        Object valor = model.getValueAt(i, 3); // columna 3 = subtotal
-        if (valor != null) {
-            total += Integer.parseInt(valor.toString());
+        int cantidad, precioCompra;
+        try {
+            cantidad = Integer.parseInt(cantidadTexto);
+            precioCompra = Integer.parseInt(precioTexto);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Cantidad o precio inválido");
+            return;
         }
-    }
 
-    txtTotal.setText(String.valueOf(total));
+        // Buscar nombre de producto
+        String nombreProducto;
+        try (Connection conex = ConexionDB.getConexion();
+         PreparedStatement psProducto = conex.prepareStatement(
+             "SELECT nombre_producto FROM producto WHERE cod_producto = ?")) {
+        psProducto.setString(1, codProducto);
+        try (ResultSet rsProducto = psProducto.executeQuery()) {
+            if (rsProducto.next()) {
+                nombreProducto = rsProducto.getString("nombre_producto");
+            } else {
+                JOptionPane.showMessageDialog(this, "Producto no encontrado para código: " + codProducto);
+                return;
+            }
+        }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al buscar producto: " + ex.getMessage());
+            return;
+        }
 
-    // Limpiar campos
-    txtProductoProveedor.setText("");
-    txtCantProveedor.setText("");
+
+        int subtotal = cantidad * precioCompra;
+
+        // Agregar fila a la tabla
+        DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
+        model.addRow(new Object[]{
+            nombreProducto,
+            cantidad,
+            precioCompra,
+            subtotal
+        });
+
+        // Actualizar el total (suma de todos los subtotales en la tabla)
+        int total = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object valor = model.getValueAt(i, 3); // columna 3 = subtotal
+            if (valor != null) {
+                total += Integer.parseInt(valor.toString());
+            }
+        }
+
+        txtTotal.setText(String.valueOf(total));
+
+        // Limpiar campos
+        txtProductoProveedor.setText("");
+        txtCantProveedor.setText("");
     }//GEN-LAST:event_cmdAgregarProductoCompraActionPerformed
 
     private void cmdCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompraActionPerformed

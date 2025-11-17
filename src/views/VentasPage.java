@@ -54,7 +54,7 @@ public class VentasPage extends javax.swing.JFrame {
 
         cmdAgregarProducto.setBackground(new java.awt.Color(211, 211, 211));
         cmdAgregarProducto.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        cmdAgregarProducto.setText("Agregrar producto");
+        cmdAgregarProducto.setText("Agregar producto");
         cmdAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdAgregarProductoActionPerformed(evt);

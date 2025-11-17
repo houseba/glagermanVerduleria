@@ -65,6 +65,7 @@ public class AdminProPage extends javax.swing.JFrame {
         jScrollPane7 = new javax.swing.JScrollPane();
         tblProveedores = new javax.swing.JTable();
         jLabel44 = new javax.swing.JLabel();
+        cmdActualizarProveedor = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(250, 250, 250));
@@ -141,6 +142,16 @@ public class AdminProPage extends javax.swing.JFrame {
         jLabel44.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel44.setText("Rut:");
 
+        cmdActualizarProveedor.setBackground(new java.awt.Color(168, 197, 227));
+        cmdActualizarProveedor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdActualizarProveedor.setText("Actualizar");
+        cmdActualizarProveedor.setActionCommand("");
+        cmdActualizarProveedor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdActualizarProveedorActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,15 +174,17 @@ public class AdminProPage extends javax.swing.JFrame {
                             .addComponent(txtTelefono)
                             .addComponent(txtNombre)
                             .addComponent(txtRut))))
+                .addGap(18, 18, 18)
+                .addComponent(cmdActualizarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(cmdAgregarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(cmdEliminarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 201, Short.MAX_VALUE)
                         .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -185,23 +198,29 @@ public class AdminProPage extends javax.swing.JFrame {
                 .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel44)
-                    .addComponent(txtRut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel40)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel41)
-                    .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel42)
-                    .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel44)
+                            .addComponent(txtRut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel40)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel41)
+                            .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel42)
+                            .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(cmdActualizarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
                     .addComponent(cmdAgregarProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -310,7 +329,6 @@ public class AdminProPage extends javax.swing.JFrame {
         }
         ListarProveedores();
     }//GEN-LAST:event_cmdAgregarProveedorActionPerformed
-
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
         InicioPage inicioPage = new InicioPage();
         inicioPage.setVisible(true);
@@ -330,6 +348,57 @@ public class AdminProPage extends javax.swing.JFrame {
         txtTelefono.setText(String.valueOf(model.getValueAt(rowSeleccionada, 2)));
         txtDireccion.setText(String.valueOf(model.getValueAt(rowSeleccionada, 3)));
     }//GEN-LAST:event_tblProveedoresMouseClicked
+
+    private void cmdActualizarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdActualizarProveedorActionPerformed
+         int rowSeleccionada = tblProveedores.getSelectedRow();
+        if (rowSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un proveedor en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String rut = txtRut.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        
+        if (rut.isEmpty() || nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "RUT y Nombre son obligatorios.");
+            return;
+        }
+        
+        DefaultTableModel m = (DefaultTableModel) tblProveedores.getModel();
+        String rutOriginal = String.valueOf(m.getValueAt(rowSeleccionada, 0));
+        
+        try{
+            Connection conex = ConexionDB.getConexion();
+            conex.setAutoCommit(false);
+            try (Statement stm = conex.createStatement()) {
+                stm.execute("PRAGMA foreign_keys = ON");
+            }
+            
+            String sql = "UPDATE proveedor " +
+                     "SET rut_proveedor = ?, nombre_proveedor = ?, contacto_proveedor = ?, direccion_proveedor = ? " +
+                     "WHERE rut_proveedor = ?";
+        
+            PreparedStatement ps = conex.prepareStatement(sql);
+            ps.setString(1, rut);
+            ps.setString(2, nombre);
+            ps.setString(3, telefono);
+            ps.setString(4, direccion);
+            ps.setString(5, rutOriginal);
+                
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                conex.rollback();
+                JOptionPane.showMessageDialog(this, "No se encontró el proveedor a actualizar.");
+                return;
+            }
+            conex.commit();
+        } catch (HeadlessException | SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        ListarProveedores();    
+    }//GEN-LAST:event_cmdActualizarProveedorActionPerformed
 
     /**
      * @param args the command line arguments
@@ -357,6 +426,7 @@ public class AdminProPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cmdActualizarProveedor;
     private javax.swing.JButton cmdAgregarProveedor;
     private javax.swing.JButton cmdEliminarProveedor;
     private javax.swing.JButton cmdSalir;

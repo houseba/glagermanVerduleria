@@ -6,18 +6,34 @@ package views.administrar_inventario;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.swing.JOptionPane;
 import posglagerman.ConexionDB;
 
 
 public class EditarProducto extends javax.swing.JFrame {
     
-    //------------------------------------
-    //  CONSTRUCTOR VACÍO (NetBeans)
-    // ------------------------------------
+    private void cargarCategoria(){
+        cmbCategoria.removeAllItems();
+        try{
+            Connection conex = ConexionDB.getConexion();
+            try (Statement stm = conex.createStatement(); ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria")) {
+                
+                while (rs.next()) {
+                    String nombreCategoria = rs.getString("nombre_categoria");
+                    cmbCategoria.addItem(nombreCategoria);
+                }
+            }
+        }catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar categorias: " + e.getMessage());
+        }
+    }
+   
     public EditarProducto() {
         initComponents();
-        cargarCombos();
+        cargarCombo();
     }
 
     // ------------------------------------
@@ -28,7 +44,10 @@ public class EditarProducto extends javax.swing.JFrame {
                           String stockMin, String categoria) {
 
         initComponents();
-        cargarCombos();
+        cargarCombo();
+        setLocationRelativeTo(null);
+        setResizable(false);
+        cargarCategoria();
 
         txtCodigo.setText(cod);
         txtNombre.setText(nombre);
@@ -39,26 +58,13 @@ public class EditarProducto extends javax.swing.JFrame {
         cmbUnidadMedida.setSelectedItem(unidad);
         cmbCategoria.setSelectedItem(categoria);
     }
-
-    // ------------------------------------
-    //   CARGA DE COMBO BOXES
-    // ------------------------------------
-    private void cargarCombos() {
+    private void cargarCombo() {
 
         cmbUnidadMedida.removeAllItems();
         cmbUnidadMedida.addItem("Unidad");
         cmbUnidadMedida.addItem("Gramo");
         cmbUnidadMedida.addItem("Kilogramo");
-
-        cmbCategoria.removeAllItems();
-        cmbCategoria.addItem("1");
-        cmbCategoria.addItem("2");
-        cmbCategoria.addItem("3");
     }
-
-    // ----------------------------------------------------------------------
-    //                      AQUI EMPIEZA initComponents()
-    // ----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     
     
@@ -276,28 +282,45 @@ public class EditarProducto extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
     private void cmdEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditarActionPerformed
+        String nombreCategoria = cmbCategoria.getSelectedItem().toString();
+        int idCategoria;
+        Connection con = null;
         try {
-            Connection con = ConexionDB.getConexion();
-
+            con = ConexionDB.getConexion();
+            con.setAutoCommit(false);
+            
             String sql = "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, unidad_medida=?, stock_actual=?, stock_minimo=?, id_categoria=? WHERE cod_producto=?";
             PreparedStatement ps = con.prepareStatement(sql);
-
+            
+            try (PreparedStatement psCat = con.prepareStatement(
+                    "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?")) {
+                psCat.setString(1, nombreCategoria);
+                try (ResultSet rs = psCat.executeQuery()) {
+                    if (!rs.next()) {
+                        con.rollback();
+                        JOptionPane.showMessageDialog(this, "Categoría no encontrada: " + nombreCategoria);
+                        return;
+                    }
+                    idCategoria = rs.getInt(1);
+                }
+            }
             ps.setString(1, txtNombre.getText());
             ps.setString(2, txtPrecio.getText());
             ps.setString(3, cmbUnidadMedida.getSelectedItem().toString());
             ps.setString(4, txtStockActual.getText());
             ps.setString(5, txtStockMinimo.getText());
-            ps.setString(6, cmbCategoria.getSelectedItem().toString());
+            ps.setInt(6, idCategoria);
             ps.setString(7, txtCodigo.getText());
 
             ps.executeUpdate();
-
+            con.commit();
             JOptionPane.showMessageDialog(null, "Producto actualizado con éxito.");
 
             dispose();
             new AdminInvPage().setVisible(true);
 
         } catch (Exception e) {
+            try { con.rollback(); } catch (Exception ignore) {}
             JOptionPane.showMessageDialog(null, "Error al actualizar: " + e.getMessage());
             e.printStackTrace();
         }

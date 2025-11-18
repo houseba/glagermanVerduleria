@@ -33,83 +33,85 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     }
     
     private void insertarProducto(){
-        
-        //Validar strings
-        String codProducto = txtCodProducto.getText().trim();
+        String codProducto = txtCodProducto.getText().toUpperCase().trim();
         String nombreProducto = txtNomProducto.getText().trim();
         String unidadMedida = String.valueOf(cmbUMedida.getSelectedItem());
         String nombreCategoria = String.valueOf(cmbCategoria.getSelectedItem());
-        
-        Integer precioVenta;
-        Integer stockActual;
-        Integer stockMinimo;
-        Integer idCategoria = null;
-        
+
+        Integer precioVenta, stockActual, stockMinimo;
+
         if (codProducto.isEmpty() || nombreProducto.isEmpty()
             || unidadMedida == null || unidadMedida.isBlank()
             || nombreCategoria == null || nombreCategoria.isBlank()) {
-            
-            JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios.");
+            JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.");
             return;
-        } 
-        
-        //Validar números
+        }
+
         try {
             precioVenta = Integer.valueOf(txtPrecioVenta.getText().trim());
             stockActual = Integer.valueOf(txtStockActual.getText().trim());
             stockMinimo = Integer.valueOf(txtStockMinimo.getText().trim());
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(null, "Precio y stock deben ser números enteros.");
+            JOptionPane.showMessageDialog(this, "Precio y stock deben ser números enteros.");
             return;
         }
         if (precioVenta < 0 || stockActual < 0 || stockMinimo < 0) {
-            JOptionPane.showMessageDialog(null, "Precio/stock no pueden ser negativos.");
+            JOptionPane.showMessageDialog(this, "Precio/stock no pueden ser negativos.");
             return;
         }
 
-        try {
-            // Conectar a la BD
-            Connection conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false); // no confirmar automaticamente
-            
-            Statement stm = conex.createStatement();
-            
-            // Sacar el id de la categoria
-            
-            PreparedStatement psCategoria = conex.prepareStatement(
-                "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?"
-            );
-            psCategoria.setString(1, nombreCategoria);
-            
-            ResultSet rs = psCategoria.executeQuery();
-                if (rs.next()){
-                    idCategoria = rs.getInt(1);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Error al insertar categoría");
-                    conex.rollback();
-                    return;
+        // Validar duplicados en bd
+        if (!validarSiExiste()) return;
+
+        // Transacción de inserción
+        try (Connection conex = ConexionDB.getConexion()) {
+            conex.setAutoCommit(false);
+            Integer idCategoria = null;
+
+            // Obtener id categoria
+            try (PreparedStatement psCategoria = conex.prepareStatement(
+                     "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?")) {
+                psCategoria.setString(1, nombreCategoria);
+                try (ResultSet rs = psCategoria.executeQuery()) {
+                    if (rs.next()) {
+                        idCategoria = rs.getInt(1);
+                    } else {
+                        conex.rollback();
+                        JOptionPane.showMessageDialog(this, "Categoría no encontrada.");
+                        return;
+                    }
                 }
-                
-            PreparedStatement ps = conex.prepareStatement(
-                "INSERT INTO producto "
-                + "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria) "
-                + "VALUES (?,?,?,?,?,?,?)"
-            );
-            ps.setString(1, codProducto);
-            ps.setString(2, nombreProducto);
-            ps.setInt(3, precioVenta);
-            ps.setString(4, unidadMedida);
-            ps.setInt(5, stockActual);
-            ps.setInt(6, stockMinimo);
-            ps.setInt(7, idCategoria);
-            
-            ps.executeUpdate();
+            }
+
+            // Insertar producto
+            try (PreparedStatement ps = conex.prepareStatement(
+                    "INSERT INTO producto " +
+                    "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria) " +
+                    "VALUES (?,?,?,?,?,?,?)")) {
+
+                ps.setString(1, codProducto);
+                ps.setString(2, nombreProducto);
+                ps.setInt(3, precioVenta);
+                ps.setString(4, unidadMedida);
+                ps.setInt(5, stockActual);
+                ps.setInt(6, stockMinimo);
+                ps.setInt(7, idCategoria);
+
+                ps.executeUpdate();
+            }
 
             conex.commit();
+
+            JOptionPane.showMessageDialog(this, "Se agregó el producto.");
+            AdminInvPage adminInvPage = new AdminInvPage();
+            adminInvPage.setVisible(true);
+            this.setVisible(false);
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al agregar el producto: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al agregar el producto: " + e.getMessage());
         }
     }
+
     
     public AgregarProductoPage() {
         initComponents();
@@ -312,7 +314,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoActionPerformed
-        // TODO: agregar la logica para insertar producto nuevo en la base de datos
+
         insertarProducto();
     }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
@@ -367,4 +369,31 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     private javax.swing.JTextField txtStockActual;
     private javax.swing.JTextField txtStockMinimo;
     // End of variables declaration//GEN-END:variables
+
+    private boolean validarSiExiste() {
+        String nombre = txtNomProducto.getText();
+        String nombreUC = nombre.toUpperCase(java.util.Locale.ROOT).trim();
+
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(
+                 "SELECT 1 FROM producto WHERE UPPER(nombre_producto) = ? LIMIT 1")) {
+
+            ps.setString(1, nombreUC);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(this,
+                        "Ya existe un producto con el nombre " + nombreUC + ".");
+                    return false;
+                }
+            }
+
+            return true;
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error validando duplicados: " + e.getMessage());
+            return false;
+        }
+    }
+
 }

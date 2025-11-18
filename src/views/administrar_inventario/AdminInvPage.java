@@ -50,7 +50,17 @@ public class AdminInvPage extends javax.swing.JFrame {
             DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
             model.setRowCount(0);
 
-            String sql = "SELECT cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria FROM Producto";
+            String sql =  
+                "SELECT p.cod_producto, " +
+                "       p.nombre_producto, " +
+                "       COALESCE(c.nombre_categoria, '(Sin categoría)') AS categoria, " + // ← nombre de la categoría
+                "       p.unidad_medida, " +
+                "       p.precio_unitario_venta, " +
+                "       p.stock_actual, " +
+                "       p.stock_minimo " +
+                "FROM producto p " +
+                "LEFT JOIN categoria c ON c.id_categoria = p.id_categoria " + // JOIN para obtener el nombre de la categoria
+                "ORDER BY p.nombre_producto";
 
             try (Connection conn = ConexionDB.getConexion();
                  PreparedStatement ps = conn.prepareStatement(sql);
@@ -64,7 +74,7 @@ public class AdminInvPage extends javax.swing.JFrame {
                         rs.getString("unidad_medida"),
                         rs.getInt("stock_actual"),
                         rs.getInt("stock_minimo"),
-                        rs.getInt("id_categoria")
+                        rs.getString("categoria")
                     });
                 }
 
@@ -206,7 +216,7 @@ public class AdminInvPage extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Codigo", "Producto", "precio unitario venta", "unidad medida", "stock actual", "stock minimo", "id categoria"
+                "Codigo", "Producto", "precio unitario venta", "unidad medida", "stock actual", "stock minimo", "Categoria"
             }
         ));
         jScrollPane7.setViewportView(tblCompra);
@@ -299,10 +309,11 @@ public class AdminInvPage extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1)
+                        .addComponent(jButton1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addGap(98, 98, 98)
@@ -346,7 +357,7 @@ public class AdminInvPage extends javax.swing.JFrame {
     String unidad = tblCompra.getValueAt(fila, 3).toString();
     int stockAct = Integer.parseInt(tblCompra.getValueAt(fila, 4).toString());
     int stockMin = Integer.parseInt(tblCompra.getValueAt(fila, 5).toString());
-    int categoria = Integer.parseInt(tblCompra.getValueAt(fila, 6).toString());
+    String categoria = tblCompra.getValueAt(fila, 6).toString();
 
     EditarProducto editar = new EditarProducto(
         cod,

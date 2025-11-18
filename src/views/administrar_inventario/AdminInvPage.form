@@ -78,10 +78,12 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel39" min="-2" pref="29" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jTextField1" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
-                  <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jScrollPane7" pref="292" max="32767" attributes="0"/>
@@ -133,7 +135,7 @@
                 <Column editable="true" title="unidad medida" type="java.lang.Object"/>
                 <Column editable="true" title="stock actual" type="java.lang.Object"/>
                 <Column editable="true" title="stock minimo" type="java.lang.Object"/>
-                <Column editable="true" title="id categoria" type="java.lang.Object"/>
+                <Column editable="true" title="Categoria" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">

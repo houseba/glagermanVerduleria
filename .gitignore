@@ -3,4 +3,3 @@ base_datos/*.db
 base_datos/*.db-wal
 base_datos/*.db-shm
 *.db-journal
-

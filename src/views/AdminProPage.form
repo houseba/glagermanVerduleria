@@ -234,7 +234,7 @@
               <Table columnCount="4" rowCount="0">
                 <Column editable="true" title="Rut" type="java.lang.Object"/>
                 <Column editable="true" title="Nombre" type="java.lang.Object"/>
-                <Column editable="true" title="Tel&#xe9;fono" type="java.lang.Object"/>
+                <Column editable="true" title="Contacto" type="java.lang.Object"/>
                 <Column editable="true" title="Direcci&#xf3;n" type="java.lang.Object"/>
               </Table>
             </Property>

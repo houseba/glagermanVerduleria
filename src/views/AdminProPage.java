@@ -129,7 +129,7 @@ public class AdminProPage extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Rut", "Nombre", "Teléfono", "Dirección"
+                "Rut", "Nombre", "Contacto", "Dirección"
             }
         ));
         tblProveedores.addMouseListener(new java.awt.event.MouseAdapter() {

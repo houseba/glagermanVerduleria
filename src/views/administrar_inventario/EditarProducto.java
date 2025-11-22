@@ -11,9 +11,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 import posglagerman.ConexionDB;
+import views.administrar_inventario.AdminInvPage;
 
 
 public class EditarProducto extends javax.swing.JFrame {
+    private int stockOriginal;
     
     private void cargarCategoria(){
         cmbCategoria.removeAllItems();
@@ -57,6 +59,8 @@ public class EditarProducto extends javax.swing.JFrame {
 
         cmbUnidadMedida.setSelectedItem(unidad);
         cmbCategoria.setSelectedItem(categoria);
+        // Guardar el stock original
+        stockOriginal = Integer.parseInt(stock);
     }
     private void cargarCombo() {
 
@@ -91,6 +95,9 @@ public class EditarProducto extends javax.swing.JFrame {
         txtStockMinimo = new javax.swing.JTextField();
         cmbUnidadMedida = new javax.swing.JComboBox<>();
         cmbCategoria = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        txtMotivoAjuste = new javax.swing.JTextField();
+        chkModificarStock = new javax.swing.JCheckBox();
 
         cmdAgregarProducto.setBackground(new java.awt.Color(168, 197, 227));
         cmdAgregarProducto.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -165,8 +172,10 @@ public class EditarProducto extends javax.swing.JFrame {
         txtPrecio.setBackground(new java.awt.Color(237, 237, 237));
         txtPrecio.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
 
+        txtStockActual.setEditable(false);
         txtStockActual.setBackground(new java.awt.Color(237, 237, 237));
         txtStockActual.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        txtStockActual.setEnabled(false);
 
         txtStockMinimo.setBackground(new java.awt.Color(237, 237, 237));
         txtStockMinimo.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
@@ -177,6 +186,26 @@ public class EditarProducto extends javax.swing.JFrame {
 
         cmbCategoria.setBackground(new java.awt.Color(237, 237, 237));
         cmbCategoria.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+
+        jLabel8.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel8.setText("Motivo de ajuste de stock:");
+
+        txtMotivoAjuste.setEditable(false);
+        txtMotivoAjuste.setBackground(new java.awt.Color(237, 237, 237));
+        txtMotivoAjuste.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        txtMotivoAjuste.setEnabled(false);
+        txtMotivoAjuste.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtMotivoAjusteActionPerformed(evt);
+            }
+        });
+
+        chkModificarStock.setText("¿Modificar stock?");
+        chkModificarStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkModificarStockActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -191,36 +220,45 @@ public class EditarProducto extends javax.swing.JFrame {
                         .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(92, 92, 92)
-                                .addComponent(cmbCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addGap(73, 73, 73)
-                                .addComponent(txtStockActual))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addGap(67, 67, 67)
-                                .addComponent(txtStockMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel1)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtCodigo)
-                                    .addComponent(txtPrecio)
-                                    .addComponent(txtNombre)
-                                    .addComponent(cmbUnidadMedida, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addGap(49, 49, 49)
+                        .addComponent(txtCodigo)
                         .addGap(121, 121, 121))))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(316, 316, 316)
                 .addComponent(jLabel39)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 339, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtMotivoAjuste)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(txtStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(chkModificarStock)
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7))
+                        .addGap(94, 94, 94)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtPrecio, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(cmbUnidadMedida, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cmbCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtStockMinimo))))
+                .addGap(121, 121, 121))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -232,10 +270,10 @@ public class EditarProducto extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -245,17 +283,22 @@ public class EditarProducto extends javax.swing.JFrame {
                     .addComponent(cmbUnidadMedida, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtStockMinimo, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(cmbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(123, 123, 123)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtStockActual, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chkModificarStock))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(txtMotivoAjuste, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(77, 77, 77)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -285,17 +328,16 @@ public class EditarProducto extends javax.swing.JFrame {
         String nombreCategoria = cmbCategoria.getSelectedItem().toString();
         int idCategoria;
         Connection con = null;
-        try {
+        
+        try{
             con = ConexionDB.getConexion();
             con.setAutoCommit(false);
-            
-            String sql = "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, unidad_medida=?, stock_actual=?, stock_minimo=?, id_categoria=? WHERE cod_producto=?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            
-            try (PreparedStatement psCat = con.prepareStatement(
+            // Obtener id de categoria
+            try (PreparedStatement psCategoria = con.prepareStatement(
                     "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?")) {
-                psCat.setString(1, nombreCategoria);
-                try (ResultSet rs = psCat.executeQuery()) {
+                psCategoria.setString(1, nombreCategoria);
+
+                try (ResultSet rs = psCategoria.executeQuery()) {
                     if (!rs.next()) {
                         con.rollback();
                         JOptionPane.showMessageDialog(this, "Categoría no encontrada: " + nombreCategoria);
@@ -303,26 +345,74 @@ public class EditarProducto extends javax.swing.JFrame {
                     }
                     idCategoria = rs.getInt(1);
                 }
+
+                // Datos del producto
+                String codProducto = txtCodigo.getText();
+                String nombre = txtNombre.getText();
+                double precio = Double.parseDouble(txtPrecio.getText());
+                int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
+                int nuevoStock = Integer.parseInt(txtStockActual.getText());
+
+                 // Actualizar producto en la BD
+                String sql = "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, " +
+                             "unidad_medida=?, stock_actual=?, stock_minimo=?, id_categoria=? " +
+                             "WHERE cod_producto=?";
+
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setString(1, nombre);
+                    ps.setDouble(2, precio);
+                    ps.setString(3, cmbUnidadMedida.getSelectedItem().toString());
+                    ps.setInt(4, nuevoStock);
+                    ps.setInt(5, stockMinimo);
+                    ps.setInt(6, idCategoria);
+                    ps.setString(7, codProducto);
+
+                    ps.executeUpdate();
+                }
+
+                // Ingresar el ajuste de stock en la BD SOLO si se ajustó el stock
+                if (chkModificarStock.isSelected()){
+                    int diferencia = nuevoStock - stockOriginal;
+
+                    if (diferencia != 0) {
+                        String motivo = txtMotivoAjuste.getText().trim();
+                        if (motivo.isEmpty()) {
+                            con.rollback();
+                            JOptionPane.showMessageDialog(this,
+                                "Debes ingresar un motivo de ajuste de stock.");
+                            return;
+                        }
+                        String sqlAjusteStock =
+                            "INSERT INTO ajuste_inventario " +
+                            "(cod_producto, cantidad_ajustada, fecha_ajuste, motivo_ajuste) " +
+                            "VALUES (?, ?, datetime('now','localtime'), ?)";
+
+                        try (PreparedStatement psAjuste = con.prepareStatement(sqlAjusteStock)) {
+                            psAjuste.setString(1, codProducto);
+                            psAjuste.setInt(2, diferencia);   // ej: -5, +10
+                            psAjuste.setString(3, motivo);
+                            psAjuste.executeUpdate();
+                        }
+                    }
+                }
+
+                con.commit();
+                JOptionPane.showMessageDialog(this, "Producto actualizado con éxito.");
+
+                dispose();
+                new AdminInvPage().setVisible(true);
             }
-            ps.setString(1, txtNombre.getText());
-            ps.setString(2, txtPrecio.getText());
-            ps.setString(3, cmbUnidadMedida.getSelectedItem().toString());
-            ps.setString(4, txtStockActual.getText());
-            ps.setString(5, txtStockMinimo.getText());
-            ps.setInt(6, idCategoria);
-            ps.setString(7, txtCodigo.getText());
-
-            ps.executeUpdate();
-            con.commit();
-            JOptionPane.showMessageDialog(null, "Producto actualizado con éxito.");
-
-            dispose();
-            new AdminInvPage().setVisible(true);
+        
+        
 
         } catch (Exception e) {
             try { con.rollback(); } catch (Exception ignore) {}
             JOptionPane.showMessageDialog(null, "Error al actualizar: " + e.getMessage());
             e.printStackTrace();
+            
+        // Forzar el cerrado de la BD
+        } finally {
+            try { if (con != null) con.close(); } catch (Exception ignore) {}
         }
     }//GEN-LAST:event_cmdEditarActionPerformed
 
@@ -336,6 +426,24 @@ public class EditarProducto extends javax.swing.JFrame {
     private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCodigoActionPerformed
+
+    private void txtMotivoAjusteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMotivoAjusteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMotivoAjusteActionPerformed
+
+    private void chkModificarStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkModificarStockActionPerformed
+        boolean habilitar = chkModificarStock.isSelected();
+
+        txtStockActual.setEditable(habilitar);
+        txtStockActual.setEnabled(habilitar);
+        txtMotivoAjuste.setEditable(habilitar);
+        txtMotivoAjuste.setEnabled(habilitar);
+        
+        if (!habilitar) {
+            txtStockActual.setText(String.valueOf(stockOriginal));
+            txtMotivoAjuste.setText("");
+        }
+    }//GEN-LAST:event_chkModificarStockActionPerformed
 
     /**
      * @param args the command line arguments
@@ -363,6 +471,7 @@ public class EditarProducto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox chkModificarStock;
     private javax.swing.JComboBox<String> cmbCategoria;
     private javax.swing.JComboBox<String> cmbUnidadMedida;
     private javax.swing.JButton cmdAgregarProducto;
@@ -376,8 +485,10 @@ public class EditarProducto extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField txtCodigo;
+    private javax.swing.JTextField txtMotivoAjuste;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtPrecio;
     private javax.swing.JTextField txtStockActual;

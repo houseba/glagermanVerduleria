@@ -143,6 +143,8 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         cmbCategoria = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Nuevo producto");
+        setBackground(new java.awt.Color(250, 250, 250));
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
 

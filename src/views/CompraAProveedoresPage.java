@@ -168,6 +168,8 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         txtPrecioCompra = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("compra a proveedores");
+        setBackground(new java.awt.Color(250, 250, 250));
         getContentPane().setLayout(new javax.swing.OverlayLayout(getContentPane()));
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
@@ -219,6 +221,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             }
         ));
         tblCompra.setFocusable(false);
+        tblCompra.setShowGrid(true);
         jScrollPane7.setViewportView(tblCompra);
 
         jLabel44.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N

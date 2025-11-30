@@ -1,0 +1,171 @@
+BEGIN TRANSACTION;
+
+-- Limpiar todo
+DELETE FROM Detalle_Venta;
+DELETE FROM Detalle_Compra;
+DELETE FROM Ajuste_Inventario;
+DELETE FROM Compra;
+DELETE FROM Venta;
+DELETE FROM Producto;
+DELETE FROM Categoria;
+DELETE FROM Proveedor;
+
+--------------------------------------------------
+-- 1) CATEGORÍAS
+--------------------------------------------------
+INSERT INTO Categoria (id_categoria, nombre_categoria) VALUES (1, 'Verduras frescas');
+INSERT INTO Categoria (id_categoria, nombre_categoria) VALUES (2, 'Frutas frescas');
+INSERT INTO Categoria (id_categoria, nombre_categoria) VALUES (3, 'Lácteos');
+
+--------------------------------------------------
+-- 2) PROVEEDORES
+--------------------------------------------------
+INSERT INTO Proveedor (rut_proveedor, nombre_proveedor, direccion_proveedor, contacto_proveedor) 
+VALUES ('765432101', 'Distribuidora San Martín', 'Av. Argentina 1240, Valparaíso', 'contacto@sanmartin.cl | +56 9 7123 4567');
+
+INSERT INTO Proveedor (rut_proveedor, nombre_proveedor, direccion_proveedor, contacto_proveedor) 
+VALUES ('769876543', 'Frutas El Quillay', 'Av. Los Carrera 450, Quilpué', 'ventas@elquillay.cl | +56 9 6345 9876');
+
+INSERT INTO Proveedor (rut_proveedor, nombre_proveedor, direccion_proveedor, contacto_proveedor) 
+VALUES ('783456789', 'Verduras Don Hugo', 'Av. Colón 980, Viña del Mar', 'donhugo@verduras.cl | +56 9 9988 7766');
+
+INSERT INTO Proveedor (rut_proveedor, nombre_proveedor, direccion_proveedor, contacto_proveedor) 
+VALUES ('761234567', 'Lácteos Valpo', 'Camino La Pólvora 345, Valparaíso', 'ventas@lacteosvalpo.cl | +56 9 6611 2200');
+
+--------------------------------------------------
+-- 3) PRODUCTOS
+--------------------------------------------------
+-- cod_producto, nombre, precio_venta, unidad, stock_actual, stock_minimo, id_categoria
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P001', 'Lechuga escarola',        800, 'unidad', 40, 10, 1);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P002', 'Tomate larga vida',      1200, 'kg',     60, 15, 1);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P003', 'Papa nueva',              900, 'kg',     80, 20, 1);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P004', 'Manzana Fuji',           1100, 'kg',     50, 10, 2);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P005', 'Plátano ecuatoriano',    1000, 'kg',     45, 10, 2);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P006', 'Leche entera 1L',        1200, 'unidad', 70, 20, 3);
+
+INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
+VALUES ('P007', 'Yoghurt batido 1L',      1500, 'unidad', 35, 10, 3);
+
+--------------------------------------------------
+-- 4) COMPRAS + DETALLE_COMPRA
+--   (totales cuadran con el detalle)
+--------------------------------------------------
+-- COMPRA 1: Verduras Don Hugo
+-- Detalle:
+--  P001: 30 u. a 500  = 15.000
+--  P002: 40 kg a 800  = 32.000
+--  P003: 50 kg a 600  = 30.000
+--  TOTAL               77.000
+
+INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
+VALUES (1, 77000, '2025-11-15 10:00:00', '78345678-9');
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (1, 1, 'P001', 30, 500);
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (2, 1, 'P002', 40, 800);
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (3, 1, 'P003', 50, 600);
+
+-- COMPRA 2: Frutas El Quillay
+--  P004: 35 kg a 700  = 24.500
+--  P005: 30 kg a 650  = 19.500
+--  TOTAL               44.000
+
+INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
+VALUES (2, 44000, '2025-11-15 11:30:00', '76987654-3');
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (4, 2, 'P004', 35, 700);
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (5, 2, 'P005', 30, 650);
+
+-- COMPRA 3: Lácteos Valpo
+--  P006: 60 u. a 800  = 48.000
+--  P007: 40 u. a 1000 = 40.000
+--  TOTAL               88.000
+
+INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
+VALUES (3, 88000, '2025-11-15 12:15:00', '76123456-7');
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (6, 3, 'P006', 60, 800);
+
+INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
+VALUES (7, 3, 'P007', 40, 1000);
+
+--------------------------------------------------
+-- 5) VENTAS + DETALLE_VENTA
+--   (totales cuadran con el detalle)
+--------------------------------------------------
+-- VENTA 1:
+--  P002: 3 kg  a 1200 = 3.600
+--  P004: 2 kg  a 1100 = 2.200
+--  TOTAL               5.800
+
+INSERT INTO Venta (id_venta, fecha_venta, total_venta)
+VALUES (1, '2025-11-16 10:30:00', 5800);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (1, 1, 'P002', 3, 1200);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (2, 1, 'P004', 2, 1100);
+
+-- VENTA 2:
+--  P001: 5 u.  a  800 = 4.000
+--  P006: 6 u.  a 1200 = 7.200
+--  TOTAL               11.200
+
+INSERT INTO Venta (id_venta, fecha_venta, total_venta)
+VALUES (2, '2025-11-16 13:45:00', 11200);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (3, 2, 'P001', 5, 800);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (4, 2, 'P006', 6, 1200);
+
+-- VENTA 3:
+--  P003: 10 kg a  900 =  9.000
+--  P005:  4 kg a 1000 =  4.000
+--  P007:  3 u. a 1500 =  4.500
+--  TOTAL               17.500
+
+INSERT INTO Venta (id_venta, fecha_venta, total_venta)
+VALUES (3, '2025-11-16 18:10:00', 17500);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (5, 3, 'P003', 10, 900);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (6, 3, 'P005', 4, 1000);
+
+INSERT INTO Detalle_Venta (id_detalle_venta, id_venta, cod_producto, cantidad_venta, precio_unitario_venta)
+VALUES (7, 3, 'P007', 3, 1500);
+
+--------------------------------------------------
+-- 6) AJUSTES DE INVENTARIO
+--------------------------------------------------
+INSERT INTO Ajuste_Inventario (id_ajuste, cod_producto, cantidad_ajustada, fecha_ajuste, motivo_ajuste)
+VALUES (1, 'P003', -5, '2025-11-16 09:00:00', 'Pérdida por daño en bodega');
+
+INSERT INTO Ajuste_Inventario (id_ajuste, cod_producto, cantidad_ajustada, fecha_ajuste, motivo_ajuste)
+VALUES (2, 'P006', 10, '2025-11-16 09:30:00', 'Ingreso por recuento de inventario');
+
+COMMIT;

@@ -68,6 +68,7 @@ public class AdminProPage extends javax.swing.JFrame {
         cmdActualizarProveedor = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Administrar proveedores");
         setBackground(new java.awt.Color(250, 250, 250));
 
         jLabel39.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
@@ -132,6 +133,7 @@ public class AdminProPage extends javax.swing.JFrame {
                 "Rut", "Nombre", "Contacto", "Dirección"
             }
         ));
+        tblProveedores.setShowGrid(true);
         tblProveedores.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblProveedoresMouseClicked(evt);

@@ -110,6 +110,8 @@ public class EditarProducto extends javax.swing.JFrame {
         });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Editar producto");
+        setBackground(new java.awt.Color(250, 250, 250));
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
 
@@ -225,7 +227,7 @@ public class EditarProducto extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(jLabel3)
                             .addComponent(jLabel4))
-                        .addGap(49, 49, 49)
+                        .addGap(45, 45, 45)
                         .addComponent(txtCodigo)
                         .addGap(121, 121, 121))))
             .addGroup(jPanel1Layout.createSequentialGroup()

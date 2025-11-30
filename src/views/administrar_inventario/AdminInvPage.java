@@ -196,12 +196,14 @@ public class AdminInvPage extends javax.swing.JFrame {
         cmdEditar = new javax.swing.JButton();
         cmdEliminar = new javax.swing.JButton();
         cmdAgregar = new javax.swing.JButton();
+        cmdHistorial = new javax.swing.JButton();
 
         cmdSalir1.setBackground(new java.awt.Color(244, 168, 168));
         cmdSalir1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdSalir1.setText("Salir");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Administrar inventario");
         setBackground(new java.awt.Color(250, 250, 250));
 
         jLabel39.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
@@ -219,6 +221,7 @@ public class AdminInvPage extends javax.swing.JFrame {
                 "Codigo", "Producto", "precio unitario venta", "unidad medida", "stock actual", "stock minimo", "Categoria"
             }
         ));
+        tblCompra.setShowGrid(true);
         jScrollPane7.setViewportView(tblCompra);
 
         jLabel1.setText("Busqueda de productos por nombre:");
@@ -273,14 +276,33 @@ public class AdminInvPage extends javax.swing.JFrame {
             }
         });
 
+        cmdHistorial.setBackground(new java.awt.Color(168, 197, 227));
+        cmdHistorial.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdHistorial.setText("Historial de modificaciones de Stock");
+        cmdHistorial.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdHistorialActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane7)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+                        .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel39)
                             .addGroup(layout.createSequentialGroup()
@@ -290,17 +312,10 @@ public class AdminInvPage extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(6, 6, 6)))
-                        .addGap(0, 349, Short.MAX_VALUE))
-                    .addComponent(jScrollPane7, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(cmdHistorial)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -316,7 +331,9 @@ public class AdminInvPage extends javax.swing.JFrame {
                         .addComponent(jButton1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                .addGap(98, 98, 98)
+                .addGap(18, 18, 18)
+                .addComponent(cmdHistorial, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -383,6 +400,12 @@ public class AdminInvPage extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_cmdAgregarActionPerformed
 
+    private void cmdHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdHistorialActionPerformed
+        HistorialStockPage historialStockPage = new HistorialStockPage();
+        historialStockPage.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_cmdHistorialActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -404,6 +427,7 @@ public class AdminInvPage extends javax.swing.JFrame {
     private javax.swing.JButton cmdAgregar;
     private javax.swing.JButton cmdEditar;
     private javax.swing.JButton cmdEliminar;
+    private javax.swing.JButton cmdHistorial;
     private javax.swing.JButton cmdSalir;
     private javax.swing.JButton cmdSalir1;
     private javax.swing.JButton jButton1;

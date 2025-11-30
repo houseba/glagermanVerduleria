@@ -35,6 +35,7 @@ public class InicioPage extends javax.swing.JFrame {
         cmdSalir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Verduleria Glagerman");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panInicio.setBackground(new java.awt.Color(250, 250, 250));

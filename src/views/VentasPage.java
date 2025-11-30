@@ -211,6 +211,7 @@ public class VentasPage extends javax.swing.JFrame {
         cmdLimpiarTabla = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Ventas");
 
         jPanel4.setBackground(new java.awt.Color(250, 250, 250));
 
@@ -243,6 +244,7 @@ public class VentasPage extends javax.swing.JFrame {
                 "Producto", "Cantidad", "Precio Unitario", "Subtotal"
             }
         ));
+        tblVenta.setShowGrid(true);
         jScrollPane1.setViewportView(tblVenta);
 
         cmdConfirmarVenta.setBackground(new java.awt.Color(168, 197, 227));

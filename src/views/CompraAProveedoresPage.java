@@ -29,105 +29,128 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     
     private void RegistrarCompra() {
         String nombreProveedor = String.valueOf(cmbProveedor.getSelectedItem());
-        String rutProveedor;
-        Connection conex = null;  
-        
-        try{
-            if (tblCompra.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(null, "Debes agregar al menos 1 producto.");
-                return;
+        if (nombreProveedor == null || nombreProveedor.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar un proveedor.");
+            return;
+        }
+
+        DefaultTableModel modelo = (DefaultTableModel) tblCompra.getModel();
+        if (modelo.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Debes agregar al menos 1 producto.");
+            return;
+        }
+
+        // Calcular el total desde la tabla (por si txtTotal está desactualizado)
+        double totalCompraDouble = 0.0;
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            Object v = modelo.getValueAt(i, 3); // Subtotal
+            if (v != null) {
+                totalCompraDouble += Double.parseDouble(v.toString());
             }
+        }
+        long totalCompra = Math.round(totalCompraDouble); // Se inserta entero en pesos
+
+        Connection conex = null;
+
+        try {
             conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false); // no confirmar automaticamente
-            
-            // Obtener el rut
-            PreparedStatement psProveedor = conex.prepareStatement(
-            "SELECT rut_proveedor FROM Proveedor WHERE nombre_proveedor = ?"
-            );
-            
-            psProveedor.setString(1, nombreProveedor);
-            
-            ResultSet rsProv = psProveedor.executeQuery();
-            if (rsProv.next()) {
-                rutProveedor = rsProv.getString("rut_proveedor");
-            } else {
-                JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
-                conex.rollback();
-                return;
-            }
-            rsProv.close();
-            psProveedor.close();
-            
-            // Insertar en la tabla compra
-            PreparedStatement psCompra = conex.prepareStatement(
-                "INSERT INTO Compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
-            Statement.RETURN_GENERATED_KEYS
-            );
-            
-            psCompra.setString(1, rutProveedor);
-            psCompra.executeUpdate();
-            
-            ResultSet rsCompraID = psCompra.getGeneratedKeys();
-            int idCompra = -1;
-            
-            if (rsCompraID.next()) {
-            idCompra = rsCompraID.getInt(1);
-            }
-            rsCompraID.close();
-            psCompra.close();
+            conex.setAutoCommit(false);
 
-            if (idCompra == -1) {
-                throw new SQLException("No se pudo obtener el ID de la compra.");
-            }
-            
-            // Insertar en tabla detalle_compra
-            PreparedStatement psDetalle = conex.prepareStatement(
-                "INSERT INTO detalle_compra (id_compra, cod_producto, cantidad_compra, precio_unitario_compra) VALUES (?, ?, ?, ?)"
-            );
-            DefaultTableModel modelo = (DefaultTableModel) tblCompra.getModel();
-            
-            for (int i=0;i<modelo.getRowCount(); i++){
-                String nombreProducto = modelo.getValueAt(i,0).toString();
-                int cantidad = Integer.parseInt(modelo.getValueAt(i, 1).toString());
-                int precioUnitarioCompra = Integer.parseInt(modelo.getValueAt(i, 2).toString());
-                
-                // obtener cod_producto
-                String codProducto;
-                PreparedStatement psProducto = conex.prepareStatement(
-                    "SELECT cod_producto FROM Producto WHERE nombre_producto = ?"
-                );
-                psProducto.setString(1,nombreProducto);
-                ResultSet rsProducto = psProducto.executeQuery();
-                if (rsProducto.next()) {
-                    codProducto = rsProducto.getString("cod_producto");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Producto no encontrado: " + nombreProducto);
-                    continue; // Salta el procucto y pasa al siguiente
+            // Obtener RUT del proveedor
+            String rutProveedor;
+            try (PreparedStatement psProveedor = conex.prepareStatement(
+                     "SELECT rut_proveedor FROM Proveedor WHERE nombre_proveedor = ?")) {
+
+                psProveedor.setString(1, nombreProveedor);
+
+                try (ResultSet rsProv = psProveedor.executeQuery()) {
+                    if (rsProv.next()) {
+                        rutProveedor = rsProv.getString("rut_proveedor");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
+                        conex.rollback();
+                        return;
+                    }
                 }
-                rsProducto.close();
-                psProducto.close();
-
-                // Insertar el detalle
-                psDetalle.setInt(1, idCompra);
-                psDetalle.setString(2, codProducto);
-                psDetalle.setInt(3, cantidad);
-                psDetalle.setInt(4, precioUnitarioCompra);
-                psDetalle.executeUpdate();
             }
-            psDetalle.close();
-            conex.commit(); // Confirmar el SQL
-            JOptionPane.showMessageDialog(null, "Compra registrada satisfactoriamente.");
-            
+
+            // Insertar la compra (incluyendo total_compra)
+            int idCompra;
+            try (PreparedStatement psCompra = conex.prepareStatement(
+                     "INSERT INTO Compra (fecha_compra, rut_proveedor, total_compra) " +
+                     "VALUES (datetime('now','localtime'), ?, ?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
+
+                psCompra.setString(1, rutProveedor);
+                psCompra.setLong(2, totalCompra);
+                psCompra.executeUpdate();
+
+                try (ResultSet rsCompraID = psCompra.getGeneratedKeys()) {
+                    if (rsCompraID.next()) {
+                        idCompra = rsCompraID.getInt(1);
+                    } else {
+                        throw new SQLException("No se pudo obtener el ID de la compra.");
+                    }
+                }
+            }
+
+            // Sentencias para detalle_compra y actualización de stock
+            try (PreparedStatement psBuscaProducto = conex.prepareStatement(
+                     "SELECT cod_producto FROM Producto WHERE nombre_producto = ?");
+                 PreparedStatement psDetalle = conex.prepareStatement(
+                     "INSERT INTO detalle_compra (id_compra, cod_producto, cantidad_compra, precio_unitario_compra) " +
+                     "VALUES (?, ?, ?, ?)");
+                 PreparedStatement psActualizaStock = conex.prepareStatement(
+                     "UPDATE Producto SET stock_actual = stock_actual + ? WHERE cod_producto = ?")) {
+
+                for (int i = 0; i < modelo.getRowCount(); i++) {
+                    String nombreProducto = modelo.getValueAt(i, 0).toString();
+                    double cantidad = Double.parseDouble(modelo.getValueAt(i, 1).toString());
+                    int precioUnitarioCompra = Integer.parseInt(modelo.getValueAt(i, 2).toString());
+
+                    // Buscar código del producto
+                    String codProducto;
+                    psBuscaProducto.setString(1, nombreProducto);
+                    try (ResultSet rsProd = psBuscaProducto.executeQuery()) {
+                        if (rsProd.next()) {
+                            codProducto = rsProd.getString("cod_producto");
+                        } else {
+                            throw new SQLException("Producto no encontrado: " + nombreProducto);
+                        }
+                    }
+
+                    // Insertar detalle de compra
+                    psDetalle.setInt(1, idCompra);
+                    psDetalle.setString(2, codProducto);
+                    psDetalle.setDouble(3, cantidad);        // cantidad_compra como REAL en BD
+                    psDetalle.setInt(4, precioUnitarioCompra);
+                    psDetalle.addBatch();
+
+                    // Actualizar stock_actual (sumar la cantidad comprada)
+                    psActualizaStock.setDouble(1, cantidad);
+                    psActualizaStock.setString(2, codProducto);
+                    psActualizaStock.addBatch();
+                }
+
+                psDetalle.executeBatch();
+                psActualizaStock.executeBatch();
+            }
+
+            conex.commit();
+            JOptionPane.showMessageDialog(this,
+                "Compra registrada satisfactoriamente.\nTotal: $ " + totalCompra);
+
+            // Limpiar tabla y total
             modelo.setRowCount(0);
             txtTotal.setText("");
-            
-        } catch (Exception e){
+
+        } catch (Exception e) {
             try { if (conex != null) conex.rollback(); } catch (SQLException ignore) {}
-            JOptionPane.showMessageDialog(null, "Error al registrar compra: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al registrar compra: " + e.getMessage());
         } finally {
             if (conex != null) {
                 try { conex.setAutoCommit(true); } catch (SQLException ignore) {}
-                try { conex.close(); } catch (SQLException ignore) {}   // <- cierra SIEMPRE
+                try { conex.close(); } catch (SQLException ignore) {}
             }
         }
     }
@@ -342,69 +365,113 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoCompraActionPerformed
-        String codProducto = txtProductoProveedor.getText().trim();
+        String codProducto = txtProductoProveedor.getText().trim().toUpperCase();
         String cantidadTexto = txtCantProveedor.getText().trim();
         String precioTexto = txtPrecioCompra.getText().trim();
 
-        if (codProducto.isEmpty() || cantidadTexto.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debes ingresar producto y cantidad");
+        if (codProducto.isEmpty() || cantidadTexto.isEmpty() || precioTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debes ingresar código, cantidad y precio de compra.");
             return;
         }
 
-        int cantidad, precioCompra;
+        double cantidad;
+        int precioCompra;
         try {
-            cantidad = Integer.parseInt(cantidadTexto);
+            cantidad = Double.parseDouble(cantidadTexto.replace(',', '.')); // permite 1,5 o 1.5
             precioCompra = Integer.parseInt(precioTexto);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Cantidad o precio inválido");
+            JOptionPane.showMessageDialog(this, "Cantidad o precio inválido.");
             return;
         }
 
-        // Buscar nombre de producto
-        String nombreProducto;
-        try (Connection conex = ConexionDB.getConexion();
-         PreparedStatement psProducto = conex.prepareStatement(
-             "SELECT nombre_producto FROM Producto WHERE cod_producto = ?")) {
-        psProducto.setString(1, codProducto);
-        try (ResultSet rsProducto = psProducto.executeQuery()) {
-            if (rsProducto.next()) {
-                nombreProducto = rsProducto.getString("nombre_producto");
-            } else {
-                JOptionPane.showMessageDialog(this, "Producto no encontrado para código: " + codProducto);
-                return;
-            }
+        if (cantidad <= 0) {
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0.");
+            return;
         }
+        if (precioCompra <= 0) {
+            JOptionPane.showMessageDialog(this, "El precio de compra debe ser mayor a 0.");
+            return;
+        }
+
+        // Buscar nombre de producto y u medida a partir del código
+        String nombreProducto;
+        String unidadMedida;
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement psProducto = conex.prepareStatement(
+                 "SELECT nombre_producto, unidad_medida FROM Producto WHERE cod_producto = ?")) {
+
+            psProducto.setString(1, codProducto);
+
+            try (ResultSet rsProducto = psProducto.executeQuery()) {
+                if (rsProducto.next()) {
+                    nombreProducto = rsProducto.getString("nombre_producto");
+                    unidadMedida = rsProducto.getString("unidad_medida");
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Producto no encontrado para código: " + codProducto);
+                    return;
+                }
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error al buscar producto: " + ex.getMessage());
             return;
         }
+        
+        boolean esKg = "Kilogramo".equalsIgnoreCase(unidadMedida);
+        if (!esKg) {
+        // si no es Kilogramo, la cantidad debe ser int
+            if (Math.abs(cantidad - Math.round(cantidad)) > 1e-9) {
+                JOptionPane.showMessageDialog(this,
+                    "Solo los productos en Kilogramo pueden tener decimales.\n" +
+                    "El producto " + nombreProducto + " está en " + unidadMedida +
+                    ", por lo que la cantidad debe ser un número entero.");
+                return;
+            }
+            // forzar a valor entero limpio
+            cantidad = Math.round(cantidad);
+        }
 
-
-        int subtotal = cantidad * precioCompra;
-
-        // Agregar fila a la tabla
         DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
-        model.addRow(new Object[]{
-            nombreProducto,
-            cantidad,
-            precioCompra,
-            subtotal
-        });
 
-        // Actualizar el total (suma de todos los subtotales en la tabla)
-        int total = 0;
+        // Si el producto ya está en la tabla, sumar cantidades y actualizar subtotal
+        boolean encontrada = false;
         for (int i = 0; i < model.getRowCount(); i++) {
-            Object valor = model.getValueAt(i, 3); // columna 3 = subtotal
-            if (valor != null) {
-                total += Integer.parseInt(valor.toString());
+            String nombreFila = model.getValueAt(i, 0).toString();
+            if (nombreFila.equals(nombreProducto)) {
+                double cantFila = Double.parseDouble(model.getValueAt(i, 1).toString());
+                double nuevaCantidad = cantFila + cantidad;
+                double nuevoSubtotal = nuevaCantidad * precioCompra;
+
+                model.setValueAt(nuevaCantidad, i, 1);
+                model.setValueAt(precioCompra, i, 2); // por si cambia el precio
+                model.setValueAt(nuevoSubtotal, i, 3);
+                encontrada = true;
+                break;
             }
         }
 
-        txtTotal.setText(String.valueOf(total));
+        // Si no estaba, agregar una fila nueva
+        if (!encontrada) {
+            double subtotal = cantidad * precioCompra;
+            model.addRow(new Object[]{ nombreProducto, cantidad, precioCompra, subtotal });
+        }
+
+        // Recalcular total de la compra
+        double total = 0.0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object valor = model.getValueAt(i, 3); // columna 3 = Subtotal
+            if (valor != null) {
+                total += Double.parseDouble(valor.toString());
+            }
+        }
+
+        long totalRedondeado = Math.round(total); // pesos Chilenos sin decimales
+        txtTotal.setText(String.valueOf(totalRedondeado));
 
         // Limpiar campos
         txtProductoProveedor.setText("");
         txtCantProveedor.setText("");
+        txtPrecioCompra.setText("");
     }//GEN-LAST:event_cmdAgregarProductoCompraActionPerformed
 
     private void cmdCompraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCompraActionPerformed

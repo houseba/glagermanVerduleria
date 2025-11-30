@@ -41,16 +41,16 @@ INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unid
 VALUES ('P001', 'Lechuga escarola',        800, 'unidad', 40, 10, 1);
 
 INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
-VALUES ('P002', 'Tomate larga vida',      1200, 'kg',     60, 15, 1);
+VALUES ('P002', 'Tomate larga vida',      1200, 'Kilogramo',     60, 15, 1);
 
 INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
-VALUES ('P003', 'Papa nueva',              900, 'kg',     80, 20, 1);
+VALUES ('P003', 'Papa nueva',              900, 'Kilogramo',     80, 20, 1);
 
 INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
-VALUES ('P004', 'Manzana Fuji',           1100, 'kg',     50, 10, 2);
+VALUES ('P004', 'Manzana Fuji',           1100, 'Kilogramo',     50, 10, 2);
 
 INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
-VALUES ('P005', 'Plátano ecuatoriano',    1000, 'kg',     45, 10, 2);
+VALUES ('P005', 'Plátano ecuatoriano',    1000, 'Kilogramo',     45, 10, 2);
 
 INSERT INTO Producto (cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria)
 VALUES ('P006', 'Leche entera 1L',        1200, 'unidad', 70, 20, 3);
@@ -70,7 +70,7 @@ VALUES ('P007', 'Yoghurt batido 1L',      1500, 'unidad', 35, 10, 3);
 --  TOTAL               77.000
 
 INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
-VALUES (1, 77000, '2025-11-15 10:00:00', '78345678-9');
+VALUES (1, 77000, '2025-11-15 10:00:00', '783456789');
 
 INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
 VALUES (1, 1, 'P001', 30, 500);
@@ -87,7 +87,7 @@ VALUES (3, 1, 'P003', 50, 600);
 --  TOTAL               44.000
 
 INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
-VALUES (2, 44000, '2025-11-15 11:30:00', '76987654-3');
+VALUES (2, 44000, '2025-11-15 11:30:00', '769876543');
 
 INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
 VALUES (4, 2, 'P004', 35, 700);
@@ -101,7 +101,7 @@ VALUES (5, 2, 'P005', 30, 650);
 --  TOTAL               88.000
 
 INSERT INTO Compra (id_compra, total_compra, fecha_compra, rut_proveedor)
-VALUES (3, 88000, '2025-11-15 12:15:00', '76123456-7');
+VALUES (3, 88000, '2025-11-15 12:15:00', '761234567');
 
 INSERT INTO Detalle_Compra (id_detalle_compra, id_compra, cod_producto, cantidad_compra, precio_unitario_compra)
 VALUES (6, 3, 'P006', 60, 800);

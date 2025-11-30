@@ -38,12 +38,12 @@ public class AdminInvPage extends javax.swing.JFrame {
 
             String sql =  
                 "SELECT p.cod_producto, " +
-                "       p.nombre_producto, " +
-                "       COALESCE(c.nombre_categoria, '(Sin categoría)') AS categoria, " + // ← nombre de la categoría
-                "       p.unidad_medida, " +
-                "       p.precio_unitario_venta, " +
-                "       p.stock_actual, " +
-                "       p.stock_minimo " +
+                "p.nombre_producto, " +
+                "COALESCE(c.nombre_categoria, '(Sin categoría)') AS categoria, " + // ← nombre de la categoría
+                "p.unidad_medida, " +
+                "p.precio_unitario_venta, " +
+                "p.stock_actual, " +
+                "p.stock_minimo " +
                 "FROM Producto p " +
                 "LEFT JOIN Categoria c ON c.id_categoria = p.id_categoria " + // JOIN para obtener el nombre de la categoria
                 "ORDER BY p.nombre_producto";
@@ -53,14 +53,21 @@ public class AdminInvPage extends javax.swing.JFrame {
                  ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
+                    String cod = rs.getString("cod_producto");
+                    String nombre = rs.getString("nombre_producto");
+                    int precio = rs.getInt("precio_unitario_venta");
+                    String unidad = rs.getString("unidad_medida");
+                    double stockAct = rs.getDouble("stock_actual");
+                    double stockMin = rs.getDouble("stock_minimo");
+                    String categoria = rs.getString("categoria");
                     model.addRow(new Object[]{
-                        rs.getString("cod_producto"),
-                        rs.getString("nombre_producto"),
-                        rs.getInt("precio_unitario_venta"),
-                        rs.getString("unidad_medida"),
-                        rs.getInt("stock_actual"),
-                        rs.getInt("stock_minimo"),
-                        rs.getString("categoria")
+                        cod,
+                        nombre,
+                        precio,
+                        unidad,
+                        stockAct,
+                        stockMin,
+                        categoria
                     });
                 }
 
@@ -81,9 +88,6 @@ public class AdminInvPage extends javax.swing.JFrame {
             });
         }
 
-        // ================================
-        //   BUSCAR PRODUCTO
-        // ================================
         private void buscarProducto() {
 
             String busqueda = jTextField1.getText().trim();
@@ -102,14 +106,21 @@ public class AdminInvPage extends javax.swing.JFrame {
                 try (ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
+                        String cod = rs.getString("cod_producto");
+                        String nombre = rs.getString("nombre_producto");
+                        int precio = rs.getInt("precio_unitario_venta");
+                        String unidad = rs.getString("unidad_medida");
+                        double stockAct = rs.getDouble("stock_actual");
+                        double stockMin = rs.getDouble("stock_minimo");
+                        String categoria = rs.getString("categoria");
                         model.addRow(new Object[]{
-                            rs.getString("cod_producto"),
-                            rs.getString("nombre_producto"),
-                            rs.getInt("precio_unitario_venta"),
-                            rs.getString("unidad_medida"),
-                            rs.getInt("stock_actual"),
-                            rs.getInt("stock_minimo"),
-                            rs.getInt("id_categoria")
+                            cod,
+                            nombre,
+                            precio,
+                            unidad,
+                            stockAct,
+                            stockMin,
+                            categoria
                         });
                     }
                 }
@@ -369,8 +380,8 @@ public class AdminInvPage extends javax.swing.JFrame {
     String nombre = tblCompra.getValueAt(fila, 1).toString();
     double precio = Double.parseDouble(tblCompra.getValueAt(fila, 2).toString());
     String unidad = tblCompra.getValueAt(fila, 3).toString();
-    int stockAct = Integer.parseInt(tblCompra.getValueAt(fila, 4).toString());
-    int stockMin = Integer.parseInt(tblCompra.getValueAt(fila, 5).toString());
+    double stockAct = Double.parseDouble(tblCompra.getValueAt(fila, 4).toString());
+    double stockMin = Double.parseDouble(tblCompra.getValueAt(fila, 5).toString());
     String categoria = tblCompra.getValueAt(fila, 6).toString();
 
     EditarProducto editar = new EditarProducto(

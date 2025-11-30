@@ -15,7 +15,7 @@ import views.administrar_inventario.AdminInvPage;
 
 
 public class EditarProducto extends javax.swing.JFrame {
-    private int stockOriginal;
+    private double stockOriginal;
     
     private void cargarCategoria(){
         cmbCategoria.removeAllItems();
@@ -60,7 +60,12 @@ public class EditarProducto extends javax.swing.JFrame {
         cmbUnidadMedida.setSelectedItem(unidad);
         cmbCategoria.setSelectedItem(categoria);
         // Guardar el stock original
-        stockOriginal = Integer.parseInt(stock);
+        try {
+            stock = stock.replace(',', '.');   // permite , o .
+            stockOriginal = Double.parseDouble(stock);
+        } catch (NumberFormatException e) {
+            stockOriginal = 0.0;
+        }
     }
     private void cargarCombo() {
 
@@ -352,8 +357,8 @@ public class EditarProducto extends javax.swing.JFrame {
                 String codProducto = txtCodigo.getText();
                 String nombre = txtNombre.getText();
                 double precio = Double.parseDouble(txtPrecio.getText());
-                int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
-                int nuevoStock = Integer.parseInt(txtStockActual.getText());
+                double stockMinimo = Double.parseDouble(txtStockMinimo.getText());
+                double nuevoStock = Double.parseDouble(txtStockActual.getText());
 
                  // Actualizar producto en la BD
                 String sql = "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, " +
@@ -364,8 +369,8 @@ public class EditarProducto extends javax.swing.JFrame {
                     ps.setString(1, nombre);
                     ps.setDouble(2, precio);
                     ps.setString(3, cmbUnidadMedida.getSelectedItem().toString());
-                    ps.setInt(4, nuevoStock);
-                    ps.setInt(5, stockMinimo);
+                    ps.setDouble(4, nuevoStock);
+                    ps.setDouble(5, stockMinimo);
                     ps.setInt(6, idCategoria);
                     ps.setString(7, codProducto);
 
@@ -374,7 +379,7 @@ public class EditarProducto extends javax.swing.JFrame {
 
                 // Ingresar el ajuste de stock en la BD SOLO si se ajustó el stock
                 if (chkModificarStock.isSelected()){
-                    int diferencia = nuevoStock - stockOriginal;
+                    double diferencia = nuevoStock - stockOriginal;
 
                     if (diferencia != 0) {
                         String motivo = txtMotivoAjuste.getText().trim();
@@ -391,7 +396,7 @@ public class EditarProducto extends javax.swing.JFrame {
 
                         try (PreparedStatement psAjuste = con.prepareStatement(sqlAjusteStock)) {
                             psAjuste.setString(1, codProducto);
-                            psAjuste.setInt(2, diferencia);   // ej: -5, +10
+                            psAjuste.setDouble(2, diferencia);   // ej: -5, +10
                             psAjuste.setString(3, motivo);
                             psAjuste.executeUpdate();
                         }
@@ -420,9 +425,7 @@ public class EditarProducto extends javax.swing.JFrame {
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
        this.dispose();
-
-    
-        new AdminInvPage().setVisible(true);
+       new AdminInvPage().setVisible(true);
     }//GEN-LAST:event_cmdSalirActionPerformed
 
     private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed

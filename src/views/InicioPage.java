@@ -13,7 +13,11 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        ConexionDB.getConexion();
+        // Verificar DB y cerrar la conexión de prueba
+        try (java.sql.Connection conex = posglagerman.ConexionDB.getConexion()) {
+        } catch (java.sql.SQLException ex) {
+            logger.log(java.util.logging.Level.SEVERE, "Error al cerrar conexión de verificación", ex);
+        }
     }
 
     /**

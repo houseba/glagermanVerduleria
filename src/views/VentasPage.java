@@ -5,15 +5,6 @@ import java.sql.*;
 import javax.swing.table.DefaultTableModel;
 import posglagerman.ConexionDB;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-
-/**
- *
- * @author seba
- */
 public class VentasPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentasPage.class.getName());
@@ -30,152 +21,265 @@ public class VentasPage extends javax.swing.JFrame {
     private void agregarProducto(){
         String cod = txtProducto.getText().toUpperCase().trim();
         String cantidadStr = txtCantidad.getText().trim();
-        int cantidad;
-        
+        double cantidad;
+
         if (cod.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingresa el código del producto.");
             return;
         }
-        
-        try {
-            cantidad = Integer.parseInt(cantidadStr);
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero.");
+        if (cantidadStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingresa la cantidad.");
             return;
         }
+
+        try {
+            cantidad = Double.parseDouble(cantidadStr.replace(',', '.')); // permitir , o .
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número.");
+            return;
+        }
+
         if (cantidad <= 0) {
             JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0.");
             return;
         }
-        
+
         String nombre;
-        int precioUnitario, stockActual;
-        
+        String unidadMedida;
+        int precioUnitario;
+        double stockActual;
+
+        // Buscar producto
         try (Connection conex = ConexionDB.getConexion();
-            PreparedStatement ps = conex.prepareStatement(
-                "SELECT nombre_producto, precio_unitario_venta, stock_actual " +
-                "FROM Producto WHERE cod_producto = ?")) {
+             PreparedStatement ps = conex.prepareStatement(
+                 "SELECT nombre_producto, precio_unitario_venta, stock_actual, unidad_medida " +
+                 "FROM Producto WHERE UPPER(cod_producto) = ?")) {
+
             ps.setString(1, cod);
-            try (ResultSet rs = ps.executeQuery()){
+
+            try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     JOptionPane.showMessageDialog(this, "No existe un producto con ese código.");
                     return;
                 }
-                nombre     = rs.getString("nombre_producto");
+                nombre = rs.getString("nombre_producto");
                 precioUnitario = rs.getInt("precio_unitario_venta");
-                stockActual= rs.getInt("stock_actual");
+                stockActual = rs.getDouble("stock_actual");
+                unidadMedida = rs.getString("unidad_medida");
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al buscar producto: " + e.getMessage());
             return;
         }
-        
-        if (cantidad > stockActual) {
-            JOptionPane.showMessageDialog(this, "Stock insuficiente. Disponible: " + stockActual);
-            return;
+
+        // Solo Kilogramos puede tener decimales
+        boolean esKg = "Kilogramo".equalsIgnoreCase(unidadMedida);
+        if (!esKg) {
+            if (Math.abs(cantidad - Math.round(cantidad)) > 1e-9) {
+                JOptionPane.showMessageDialog(this,
+                    "Solo los productos vendidos en Kilogramo pueden tener decimales.\n" +
+                    "El producto " + nombre +  "está en " + unidadMedida +
+                    ", por lo que la cantidad debe ser un número entero.");
+                return;
+            }
+            cantidad = Math.round(cantidad);
         }
-        int subtotal = cantidad * precioUnitario;
-        
+
         DefaultTableModel model = (DefaultTableModel) tblVenta.getModel();
-        model.addRow(new Object[]{ nombre, cantidad, precioUnitario, subtotal });
-        
-        int total = 0;
+
+        // Ver si el producto ya está en la tabla para sumar cantidad
+        boolean encontrada = false;
         for (int i = 0; i < model.getRowCount(); i++) {
-            Object v = model.getValueAt(i, 3);
-            if (v != null) total += Integer.parseInt(v.toString());
+            String nombreFila = model.getValueAt(i, 0).toString();
+            if (nombreFila.equals(nombre)) {
+                double cantFila = Double.parseDouble(model.getValueAt(i, 1).toString());
+                double nuevaCantidad = cantFila + cantidad;
+
+                // validar stock con la nueva cantidad total
+                if (nuevaCantidad > stockActual) {
+                    JOptionPane.showMessageDialog(this,
+                        "Stock insuficiente.\nDisponible: " + stockActual +
+                        " " + unidadMedida + "\nYa tienes " + cantFila +
+                        " agregados a la venta.");
+                    return;
+                }
+
+                double nuevoSubtotal = nuevaCantidad * precioUnitario;
+
+                Object cantidadTabla = esKg ? nuevaCantidad : (int) Math.round(nuevaCantidad);
+
+                model.setValueAt(cantidadTabla, i, 1); // cantidad
+                model.setValueAt(precioUnitario, i, 2); // precio unitario (por si cambia)
+                model.setValueAt(nuevoSubtotal, i, 3); // subtotal
+                encontrada = true;
+                break;
+            }
         }
-        txtTotal.setText(String.valueOf(total));
-    }
-    
-    private void confirmarVenta(){
-        DefaultTableModel model = (DefaultTableModel) tblVenta.getModel();
+
+        // Si no estaba en la tabla, agregar una fila nueva
+        if (!encontrada) {
+            if (cantidad > stockActual) {
+                JOptionPane.showMessageDialog(this,
+                    "Stock insuficiente. Disponible: " + stockActual + " " + unidadMedida);
+                return;
+            }
+
+            double subtotal = cantidad * precioUnitario;
+            Object cantidadTabla = esKg ? cantidad : (int) Math.round(cantidad);
+
+            model.addRow(new Object[]{
+                nombre,
+                cantidadTabla,
+                precioUnitario,
+                subtotal
+            });
+        }
+
+        // Recalcular total (double) y redondear a entero para mostrar
+        double total = 0.0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object v = model.getValueAt(i, 3); // subtotal
+            if (v != null) {
+                total += Double.parseDouble(v.toString());
+            }
+        }
+        long totalRedondeado = Math.round(total); // sin decimales
+        txtTotal.setText(String.valueOf(totalRedondeado));
+
+        // Limpiar campos
+        txtProducto.setText("");
+        txtCantidad.setText("");
+        }
+
+        private void confirmarVenta(){
+            DefaultTableModel model = (DefaultTableModel) tblVenta.getModel();
         if (model.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Agrega al menos un producto.");
             return;
         }
-        int total = 0;
+
+        // Total en double y se redondea al final
+        double total = 0.0;
         for (int i = 0; i < model.getRowCount(); i++) {
-            total += Integer.parseInt(model.getValueAt(i, 3).toString()); // Subtotal
+            Object v = model.getValueAt(i, 3); // Subtotal
+            if (v != null) {
+                total += Double.parseDouble(v.toString());
+            }
         }
-        
-        Connection conex = null;
-        try{
-            conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false);
-            
-            int idVenta;
-            try (PreparedStatement ps = conex.prepareStatement(
-                "INSERT INTO venta (total_venta, fecha_venta) VALUES (?, datetime('now'))",
-                Statement.RETURN_GENERATED_KEYS)){
-                
-                ps.setInt(1, total);
-                ps.executeUpdate();
-                
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (!rs.next()) throw new SQLException("No se obtuvo id venta.");
-                    idVenta = rs.getInt(1);
+        long totalRedondeado = Math.round(total); // Chile sin decimales
+
+        try (Connection conex = ConexionDB.getConexion()) {
+            try {
+                conex.setAutoCommit(false);
+
+                int idVenta;
+
+                // insertar en tabla venta
+                try (PreparedStatement psVenta = conex.prepareStatement(
+                        "INSERT INTO venta (total_venta, fecha_venta) VALUES (?, datetime('now'))",
+                        Statement.RETURN_GENERATED_KEYS)) {
+
+                    psVenta.setLong(1, totalRedondeado);
+                    psVenta.executeUpdate();
+
+                    try (ResultSet rs = psVenta.getGeneratedKeys()) {
+                        if (!rs.next()) {
+                            throw new SQLException("No se obtuvo id venta.");
+                        }
+                        idVenta = rs.getInt(1);
+                    }
                 }
-                
-                // try con las busquedas listas para ser usadas
+
+                // Preparar búsquedas, actualización de stock y detalle_venta
                 try (PreparedStatement psBusca = conex.prepareStatement(
-                        "SELECT cod_producto, stock_actual FROM Producto WHERE nombre_producto = ?");
-                    PreparedStatement psStock = conex.prepareStatement(
-                           "UPDATE Producto SET stock_actual = stock_actual - ? " +
-                           "WHERE cod_producto = ? AND stock_actual >= ?");
-                    PreparedStatement psDet = conex.prepareStatement(
-                           "INSERT INTO detalle_venta (id_venta, cod_producto, cantidad_venta, precio_unitario_venta) " +
-                           "VALUES (?, ?, ?, ?)")) {
-                    
+                            "SELECT cod_producto, stock_actual, unidad_medida " +
+                            "FROM Producto WHERE nombre_producto = ?");
+                     PreparedStatement psStock = conex.prepareStatement(
+                            "UPDATE Producto " +
+                            "SET stock_actual = stock_actual - ? " +
+                            "WHERE cod_producto = ? AND stock_actual >= ?");
+                     PreparedStatement psDet = conex.prepareStatement(
+                            "INSERT INTO detalle_venta " +
+                            "(id_venta, cod_producto, cantidad_venta, precio_unitario_venta) " +
+                            "VALUES (?, ?, ?, ?)")) {
+
                     for (int i = 0; i < model.getRowCount(); i++) {
-                        String nombre   = model.getValueAt(i, 0).toString();
-                        int cantidad    = Integer.parseInt(model.getValueAt(i, 1).toString());
-                        int precioUnit  = Integer.parseInt(model.getValueAt(i, 2).toString());   
+                        String nombre = model.getValueAt(i, 0).toString();
+                        double cantidadTabla = Double.parseDouble(model.getValueAt(i, 1).toString());
+                        int precioUnit = Integer.parseInt(model.getValueAt(i, 2).toString());
 
                         String cod;
-                        int stock;
-                        psBusca.setString(1, nombre);
+                        double stock;
+                        String unidadMedida;
 
+                        // Buscar producto en BD
+                        psBusca.setString(1, nombre);
                         try (ResultSet rs = psBusca.executeQuery()) {
-                            if (!rs.next()) throw new SQLException("Producto no encontrado: " + nombre);
+                            if (!rs.next()) {
+                                throw new SQLException("Producto no encontrado: " + nombre);
+                            }
                             cod = rs.getString("cod_producto");
-                            stock = rs.getInt("stock_actual");
+                            stock = rs.getDouble("stock_actual");
+                            unidadMedida = rs.getString("unidad_medida");
                         }
-                            
-                            
-                        // Descontar stock de forma automatica
-                        psStock.setInt(1, cantidad); // cantidad a restar
+
+                        boolean esKg = "Kilogramo".equalsIgnoreCase(unidadMedida);
+
+                        // si no es kg, cantidad entera
+                        double cantidadReal = esKg ? cantidadTabla : Math.round(cantidadTabla);
+
+                        if (cantidadReal > stock + 1e-9) {
+                            throw new SQLException(
+                                "Stock insuficiente para " + nombre +
+                                ". Disponible: " + stock
+                            );
+                        }
+
+                        // Descontar stock
+                        psStock.setDouble(1, cantidadReal);
                         psStock.setString(2, cod);
-                        psStock.setInt(3, cantidad);
+                        psStock.setDouble(3, cantidadReal); // condición stock_actual >= cantidadReal
                         int ok = psStock.executeUpdate();
-                        
                         if (ok == 0) {
-                            throw new SQLException("Stock insuficiente para " + nombre + ". Disponible: " + stock);
+                            throw new SQLException(
+                                "Stock insuficiente para " + nombre +
+                                " al confirmar la venta. Stock actual: " + stock
+                            );
                         }
+
+                        // Insertar detalle de la venta
                         psDet.setInt(1, idVenta);
                         psDet.setString(2, cod);
-                        psDet.setInt(3, cantidad);
+                        psDet.setDouble(3, cantidadReal); // campo debe ser REAL en BD
                         psDet.setInt(4, precioUnit);
                         psDet.addBatch();
                     }
+
                     psDet.executeBatch();
                 }
-                conex.commit();
-                JOptionPane.showMessageDialog(this, "Venta registrada. Total: $ " + total);
 
+                conex.commit();
+                JOptionPane.showMessageDialog(this, "Venta registrada. Total: $ " + totalRedondeado);
+
+                // Limpiar
                 model.setRowCount(0);
                 txtProducto.setText("");
                 txtCantidad.setText("");
                 txtTotal.setText("");
+
+            } catch (SQLException e) {
+                try {
+                    conex.rollback();
+                } catch (SQLException ignore) {}
+                JOptionPane.showMessageDialog(this, "No se pudo registrar la venta: " + e.getMessage());
+            } finally {
+                try {
+                    conex.setAutoCommit(true);
+                } catch (SQLException ignore) {}
             }
         } catch (SQLException e) {
-            try { if (conex != null) conex.rollback(); } catch (SQLException ignore) {}
-            JOptionPane.showMessageDialog(this, "No se pudo registrar la venta: " + e.getMessage());
-        } finally {
-            if (conex != null) {
-                try { conex.setAutoCommit(true); } catch (SQLException ignore) {}
-                try { conex.close(); } catch (SQLException ignore) {}
-            }
-        } 
+            JOptionPane.showMessageDialog(this, "Error de conexión al registrar la venta: " + e.getMessage());
+        }
     }
     
     private void limpiarTabla(){

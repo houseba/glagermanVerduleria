@@ -1,28 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package views.administrar_inventario;
-
-import views.CompraAProveedoresPage;
 import views.InicioPage;
-import views.administrar_inventario.AgregarProductoPage;
 import posglagerman.ConexionDB;
+import Utils.StockRenderer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-
-
-
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -37,14 +24,13 @@ public class AdminInvPage extends javax.swing.JFrame {
             initComponents();
             setLocationRelativeTo(null);
             setResizable(false);
-
+            
             cargarProductos();
+            StockRenderer renderer = new StockRenderer(4, 5); // col 4 = stock actual, col 5 = stock mínimo
+            tblCompra.setDefaultRenderer(Object.class, renderer);
             seleccionarProductoTabla();
         }
 
-        // ================================
-        //   CARGAR PRODUCTOS
-        // ================================
         private void cargarProductos() {
 
             DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
@@ -83,9 +69,6 @@ public class AdminInvPage extends javax.swing.JFrame {
             }
         }
 
-        // ================================
-        //   SELECCIONAR FILA DE TABLA
-        // ================================
         private void seleccionarProductoTabla() {
             tblCompra.addMouseListener(new MouseAdapter() {
                 @Override
@@ -136,9 +119,6 @@ public class AdminInvPage extends javax.swing.JFrame {
             }
         }
 
-        // ================================
-        //   ELIMINAR PRODUCTO
-        // ================================
         private void eliminarProducto() {
 
             if (productoSeleccionado == null) {
@@ -197,6 +177,7 @@ public class AdminInvPage extends javax.swing.JFrame {
         cmdEliminar = new javax.swing.JButton();
         cmdAgregar = new javax.swing.JButton();
         cmdHistorial = new javax.swing.JButton();
+        cmdCategorias = new javax.swing.JButton();
 
         cmdSalir1.setBackground(new java.awt.Color(244, 168, 168));
         cmdSalir1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -277,11 +258,20 @@ public class AdminInvPage extends javax.swing.JFrame {
         });
 
         cmdHistorial.setBackground(new java.awt.Color(168, 197, 227));
-        cmdHistorial.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdHistorial.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
         cmdHistorial.setText("Historial de modificaciones de Stock");
         cmdHistorial.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmdHistorialActionPerformed(evt);
+            }
+        });
+
+        cmdCategorias.setBackground(new java.awt.Color(168, 197, 227));
+        cmdCategorias.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdCategorias.setText("Administrar categorias");
+        cmdCategorias.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdCategoriasActionPerformed(evt);
             }
         });
 
@@ -294,15 +284,6 @@ public class AdminInvPage extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane7)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
-                        .addComponent(cmdSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel39)
                             .addGroup(layout.createSequentialGroup()
@@ -314,8 +295,22 @@ public class AdminInvPage extends javax.swing.JFrame {
                                 .addGap(6, 6, 6)))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(cmdHistorial)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addComponent(cmdAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cmdEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cmdEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(cmdCategorias, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(cmdHistorial, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cmdSalir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -332,7 +327,9 @@ public class AdminInvPage extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(cmdHistorial, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(cmdHistorial, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmdCategorias, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cmdSalir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -406,6 +403,12 @@ public class AdminInvPage extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_cmdHistorialActionPerformed
 
+    private void cmdCategoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCategoriasActionPerformed
+        AdministrarCategoriasPage administrarCategoriasPage = new AdministrarCategoriasPage();
+        administrarCategoriasPage.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_cmdCategoriasActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -425,6 +428,7 @@ public class AdminInvPage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cmdAgregar;
+    private javax.swing.JButton cmdCategorias;
     private javax.swing.JButton cmdEditar;
     private javax.swing.JButton cmdEliminar;
     private javax.swing.JButton cmdHistorial;

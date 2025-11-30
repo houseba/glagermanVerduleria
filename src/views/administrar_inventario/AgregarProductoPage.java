@@ -70,7 +70,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
 
             // Obtener id categoria
             try (PreparedStatement psCategoria = conex.prepareStatement(
-                     "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?")) {
+                     "SELECT id_categoria FROM Categoria WHERE nombre_categoria = ?")) {
                 psCategoria.setString(1, nombreCategoria);
                 try (ResultSet rs = psCategoria.executeQuery()) {
                     if (rs.next()) {
@@ -85,7 +85,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
 
             // Insertar producto
             try (PreparedStatement ps = conex.prepareStatement(
-                    "INSERT INTO producto " +
+                    "INSERT INTO Producto " +
                     "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria) " +
                     "VALUES (?,?,?,?,?,?,?)")) {
 
@@ -376,7 +376,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
 
         try (Connection conex = ConexionDB.getConexion();
              PreparedStatement ps = conex.prepareStatement(
-                 "SELECT 1 FROM producto WHERE UPPER(nombre_producto) = ? LIMIT 1")) {
+                 "SELECT 1 FROM Producto WHERE UPPER(nombre_producto) = ? LIMIT 1")) {
 
             ps.setString(1, nombreUC);
 

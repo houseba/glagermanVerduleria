@@ -58,8 +58,8 @@ public class AdminInvPage extends javax.swing.JFrame {
                 "       p.precio_unitario_venta, " +
                 "       p.stock_actual, " +
                 "       p.stock_minimo " +
-                "FROM producto p " +
-                "LEFT JOIN categoria c ON c.id_categoria = p.id_categoria " + // JOIN para obtener el nombre de la categoria
+                "FROM Producto p " +
+                "LEFT JOIN Categoria c ON c.id_categoria = p.id_categoria " + // JOIN para obtener el nombre de la categoria
                 "ORDER BY p.nombre_producto";
 
             try (Connection conn = ConexionDB.getConexion();

@@ -54,7 +54,7 @@ public class VentasPage extends javax.swing.JFrame {
         try (Connection conex = ConexionDB.getConexion();
             PreparedStatement ps = conex.prepareStatement(
                 "SELECT nombre_producto, precio_unitario_venta, stock_actual " +
-                "FROM producto WHERE cod_producto = ?")) {
+                "FROM Producto WHERE cod_producto = ?")) {
             ps.setString(1, cod);
             try (ResultSet rs = ps.executeQuery()){
                 if (!rs.next()) {
@@ -118,9 +118,9 @@ public class VentasPage extends javax.swing.JFrame {
                 
                 // try con las busquedas listas para ser usadas
                 try (PreparedStatement psBusca = conex.prepareStatement(
-                        "SELECT cod_producto, stock_actual FROM producto WHERE nombre_producto = ?");
+                        "SELECT cod_producto, stock_actual FROM Producto WHERE nombre_producto = ?");
                     PreparedStatement psStock = conex.prepareStatement(
-                           "UPDATE producto SET stock_actual = stock_actual - ? " +
+                           "UPDATE Producto SET stock_actual = stock_actual - ? " +
                            "WHERE cod_producto = ? AND stock_actual >= ?");
                     PreparedStatement psDet = conex.prepareStatement(
                            "INSERT INTO detalle_venta (id_venta, cod_producto, cantidad_venta, precio_unitario_venta) " +

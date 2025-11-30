@@ -85,6 +85,11 @@ public class InicioPage extends javax.swing.JFrame {
         cmdReportes.setBackground(new java.awt.Color(237, 237, 237));
         cmdReportes.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         cmdReportes.setText("Reportes");
+        cmdReportes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdReportesActionPerformed(evt);
+            }
+        });
 
         cmdSalir.setBackground(new java.awt.Color(244, 168, 168));
         cmdSalir.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -167,6 +172,12 @@ public class InicioPage extends javax.swing.JFrame {
         administrarInvPage.setVisible(true);   
         this.setVisible(false);// TODO add your handling code here:
     }//GEN-LAST:event_cmdInventarioActionPerformed
+
+    private void cmdReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdReportesActionPerformed
+        ReportesPage AdminReportesPage = new ReportesPage();
+        AdminReportesPage.setVisible(true);   
+        this.setVisible(false);
+    }//GEN-LAST:event_cmdReportesActionPerformed
 
     /**
      * @param args the command line arguments

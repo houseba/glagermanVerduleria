@@ -14,7 +14,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     
     private void cargarProveedores() {
         cmbProveedor.removeAllItems();
-        String sql = "SELECT nombre_proveedor FROM proveedor";
+        String sql = "SELECT nombre_proveedor FROM Proveedor";
         try (Connection conex = ConexionDB.getConexion();
             Statement stm = conex.createStatement();
             ResultSet rs = stm.executeQuery(sql)) {
@@ -42,7 +42,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             // Obtener el rut
             PreparedStatement psProveedor = conex.prepareStatement(
-            "SELECT rut_proveedor FROM proveedor WHERE nombre_proveedor = ?"
+            "SELECT rut_proveedor FROM Proveedor WHERE nombre_proveedor = ?"
             );
             
             psProveedor.setString(1, nombreProveedor);
@@ -60,7 +60,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             
             // Insertar en la tabla compra
             PreparedStatement psCompra = conex.prepareStatement(
-                "INSERT INTO compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
+                "INSERT INTO Compra (fecha_compra, rut_proveedor) VALUES (datetime('now'), ?)",
             Statement.RETURN_GENERATED_KEYS
             );
             
@@ -94,7 +94,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                 // obtener cod_producto
                 String codProducto;
                 PreparedStatement psProducto = conex.prepareStatement(
-                    "SELECT cod_producto FROM producto WHERE nombre_producto = ?"
+                    "SELECT cod_producto FROM Producto WHERE nombre_producto = ?"
                 );
                 psProducto.setString(1,nombreProducto);
                 ResultSet rsProducto = psProducto.executeQuery();
@@ -361,7 +361,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         String nombreProducto;
         try (Connection conex = ConexionDB.getConexion();
          PreparedStatement psProducto = conex.prepareStatement(
-             "SELECT nombre_producto FROM producto WHERE cod_producto = ?")) {
+             "SELECT nombre_producto FROM Producto WHERE cod_producto = ?")) {
         psProducto.setString(1, codProducto);
         try (ResultSet rsProducto = psProducto.executeQuery()) {
             if (rsProducto.next()) {

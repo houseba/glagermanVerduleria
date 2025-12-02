@@ -116,7 +116,7 @@ public class AdminProPage extends javax.swing.JFrame {
         txtNombre.setToolTipText("");
 
         jLabel41.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel41.setText("Teléfono:");
+        jLabel41.setText("Contacto:");
 
         jLabel42.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel42.setText("Dirección:");

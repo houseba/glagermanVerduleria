@@ -38,37 +38,68 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         String unidadMedida = String.valueOf(cmbUMedida.getSelectedItem());
         String nombreCategoria = String.valueOf(cmbCategoria.getSelectedItem());
 
-        Integer precioVenta, stockActual, stockMinimo;
+        Integer precioVenta;
+        double stockActual, stockMinimo;
 
         if (codProducto.isEmpty() || nombreProducto.isEmpty()
             || unidadMedida == null || unidadMedida.isBlank()
             || nombreCategoria == null || nombreCategoria.isBlank()) {
+
             JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.");
             return;
         }
 
+        // siempre entero (CLP sin decimales)
         try {
             precioVenta = Integer.valueOf(txtPrecioVenta.getText().trim());
-            stockActual = Integer.valueOf(txtStockActual.getText().trim());
-            stockMinimo = Integer.valueOf(txtStockMinimo.getText().trim());
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(this, "Precio y stock deben ser números enteros.");
+            JOptionPane.showMessageDialog(this, "El precio de venta debe ser un número entero.");
             return;
         }
+
+        // permitir decimales solo si la unidad es Kilogramo
+        try {
+            String stockActStr = txtStockActual.getText().trim().replace(',', '.');
+            String stockMinStr = txtStockMinimo.getText().trim().replace(',', '.');
+
+            stockActual = Double.parseDouble(stockActStr);
+            stockMinimo = Double.parseDouble(stockMinStr);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Stock actual y stock mínimo deben ser números válidos.");
+            return;
+        }
+
         if (precioVenta < 0 || stockActual < 0 || stockMinimo < 0) {
             JOptionPane.showMessageDialog(this, "Precio/stock no pueden ser negativos.");
             return;
         }
 
-        // Validar duplicados en bd
+        // solo Kilogramo puede tener decimales
+        boolean esKg = unidadMedida.equalsIgnoreCase("Kilogramo");
+        if (!esKg) {
+            boolean stockActEsEntero = (stockActual % 1 == 0);
+            boolean stockMinEsEntero = (stockMinimo % 1 == 0);
+
+            if (!stockActEsEntero || !stockMinEsEntero) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Solo los productos con unidad 'Kilogramo' pueden tener decimales en el stock.\n" +
+                    "Para 'Unidad' o 'Gramo', usa valores enteros.",
+                    "Stock inválido",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+        }
+
+        // Validar duplicados en bd (por nombre)
         if (!validarSiExiste()) return;
 
-        // Transacción de inserción
         try (Connection conex = ConexionDB.getConexion()) {
             conex.setAutoCommit(false);
             Integer idCategoria = null;
 
-            // Obtener id categoria
+            // Obtener id_categoria
             try (PreparedStatement psCategoria = conex.prepareStatement(
                      "SELECT id_categoria FROM Categoria WHERE nombre_categoria = ?")) {
                 psCategoria.setString(1, nombreCategoria);
@@ -84,17 +115,19 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             }
 
             // Insertar producto
-            try (PreparedStatement ps = conex.prepareStatement(
-                    "INSERT INTO Producto " +
-                    "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, stock_actual, stock_minimo, id_categoria) " +
-                    "VALUES (?,?,?,?,?,?,?)")) {
+            String sqlInsert =
+                "INSERT INTO Producto " +
+                "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, " +
+                " stock_actual, stock_minimo, id_categoria) " +
+                "VALUES (?,?,?,?,?,?,?)";
 
+            try (PreparedStatement ps = conex.prepareStatement(sqlInsert)) {
                 ps.setString(1, codProducto);
                 ps.setString(2, nombreProducto);
                 ps.setInt(3, precioVenta);
                 ps.setString(4, unidadMedida);
-                ps.setInt(5, stockActual);
-                ps.setInt(6, stockMinimo);
+                ps.setDouble(5, stockActual);
+                ps.setDouble(6, stockMinimo);
                 ps.setInt(7, idCategoria);
 
                 ps.executeUpdate();
@@ -111,6 +144,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error al agregar el producto: " + e.getMessage());
         }
     }
+
 
     
     public AgregarProductoPage() {
@@ -385,7 +419,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     JOptionPane.showMessageDialog(this,
-                        "Ya existe un producto con el nombre " + nombreUC + ".");
+                        "Ya existe un producto con el nombre " + nombre + ".");
                     return false;
                 }
             }

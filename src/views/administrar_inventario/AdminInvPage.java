@@ -95,7 +95,18 @@ public class AdminInvPage extends javax.swing.JFrame {
             DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
             model.setRowCount(0);
 
-            String sql = "SELECT * FROM Producto WHERE nombre_producto LIKE ? OR cod_producto LIKE ?";
+            String sql =
+                "SELECT p.cod_producto, " +
+                "p.nombre_producto, " +
+                "p.precio_unitario_venta, " +
+                "p.unidad_medida, " +
+                "p.stock_actual, " +
+                "p.stock_minimo, " +
+                "COALESCE(c.nombre_categoria, '(Sin categoría)') AS categoria " +
+                "FROM Producto p " +
+                "LEFT JOIN Categoria c ON p.id_categoria = c.id_categoria " +
+                "WHERE p.nombre_producto LIKE ? OR p.cod_producto LIKE ? " +
+                "ORDER BY p.nombre_producto";
 
             try (Connection conn = ConexionDB.getConexion();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -106,13 +117,14 @@ public class AdminInvPage extends javax.swing.JFrame {
                 try (ResultSet rs = ps.executeQuery()) {
 
                     while (rs.next()) {
-                        String cod = rs.getString("cod_producto");
-                        String nombre = rs.getString("nombre_producto");
-                        int precio = rs.getInt("precio_unitario_venta");
-                        String unidad = rs.getString("unidad_medida");
-                        double stockAct = rs.getDouble("stock_actual");
-                        double stockMin = rs.getDouble("stock_minimo");
-                        String categoria = rs.getString("categoria");
+                        String cod       = rs.getString("cod_producto");
+                        String nombre    = rs.getString("nombre_producto");
+                        int precio       = rs.getInt("precio_unitario_venta");
+                        String unidad    = rs.getString("unidad_medida");
+                        double stockAct  = rs.getDouble("stock_actual");
+                        double stockMin  = rs.getDouble("stock_minimo");
+                        String categoria = rs.getString("categoria"); // ← nombre, no id
+
                         model.addRow(new Object[]{
                             cod,
                             nombre,
@@ -129,6 +141,7 @@ public class AdminInvPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
             }
         }
+
 
         private void eliminarProducto() {
 
@@ -210,13 +223,21 @@ public class AdminInvPage extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Codigo", "Producto", "precio unitario venta", "unidad medida", "stock actual", "stock minimo", "Categoria"
+                "Código", "Producto", "Precio unitario venta", "Unidad de medida", "Stock actual", "Stock mínimo", "Categoría"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblCompra.setShowGrid(true);
         jScrollPane7.setViewportView(tblCompra);
 
-        jLabel1.setText("Busqueda de productos por nombre:");
+        jLabel1.setText("Búsqueda de productos por nombre:");
 
         jTextField1.setBackground(new java.awt.Color(237, 237, 237));
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -405,19 +426,19 @@ public class AdminInvPage extends javax.swing.JFrame {
     private void cmdAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarActionPerformed
         AgregarProductoPage agregarProductoPage = new AgregarProductoPage();
         agregarProductoPage.setVisible(true);
-        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_cmdAgregarActionPerformed
 
     private void cmdHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdHistorialActionPerformed
         HistorialStockPage historialStockPage = new HistorialStockPage();
         historialStockPage.setVisible(true);
-        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_cmdHistorialActionPerformed
 
     private void cmdCategoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCategoriasActionPerformed
         AdministrarCategoriasPage administrarCategoriasPage = new AdministrarCategoriasPage();
         administrarCategoriasPage.setVisible(true);
-        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_cmdCategoriasActionPerformed
 
     /**

@@ -62,13 +62,17 @@
                               <Component id="cmdProveedores" min="-2" pref="194" max="-2" attributes="0"/>
                               <Component id="cmdInventario" min="-2" pref="194" max="-2" attributes="0"/>
                               <Component id="cmdVentas" min="-2" pref="194" max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                               <Component id="cmdCompras" min="-2" pref="194" max="-2" attributes="0"/>
                               <Component id="cmdReportes" alignment="0" min="-2" pref="194" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="38" pref="294" max="32767" attributes="0"/>
+                          <EmptySpace min="71" pref="294" max="32767" attributes="0"/>
                       </Group>
                   </Group>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="280" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -100,7 +104,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="SansSerif" size="24" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="POS Glagerman"/>
+            <Property name="text" type="java.lang.String" value="Negocio Glagerman"/>
             <Property name="alignmentY" type="float" value="0.0"/>
           </Properties>
         </Component>

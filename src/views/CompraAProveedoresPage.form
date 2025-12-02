@@ -64,7 +64,7 @@
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="cmbProveedor" pref="306" max="32767" attributes="0"/>
+                                      <Component id="cmbProveedor" pref="305" max="32767" attributes="0"/>
                                       <Component id="txtProductoProveedor" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -190,7 +190,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="SansSerif" size="14" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="b&#xfa;squeda de producto:"/>
+            <Property name="text" type="java.lang.String" value="B&#xfa;squeda de producto:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel42">

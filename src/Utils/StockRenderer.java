@@ -1,58 +1,55 @@
 package Utils;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.*;
+import java.awt.Color;
+import java.awt.Component;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class StockRenderer extends DefaultTableCellRenderer {
 
-    // Indices de las columnas
-    private final int COL_STOCK_ACTUAL;
-    private final int COL_STOCK_MINIMO;
+    private final int colStockActual;
+    private final int colStockMinimo;
 
     public StockRenderer(int colStockActual, int colStockMinimo) {
-        this.COL_STOCK_ACTUAL = colStockActual;
-        this.COL_STOCK_MINIMO = colStockMinimo;
+        this.colStockActual = colStockActual;
+        this.colStockMinimo = colStockMinimo;
     }
 
     @Override
-    public Component getTableCellRendererComponent(
-            JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(JTable table, Object value,boolean isSelected, boolean hasFocus,int row, int column) {
 
-        Component c = super.getTableCellRendererComponent(
-                table, value, isSelected, hasFocus, row, column);
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // Pasar de índice de vista a índice del modelo
+        // Resetea colores
+        if (isSelected) {
+            c.setBackground(table.getSelectionBackground());
+            c.setForeground(table.getSelectionForeground());
+        } else {
+            c.setBackground(Color.WHITE);
+            c.setForeground(Color.BLACK);
+        }
+
+        // Convertir fila de vista a modelo
         int modelRow = table.convertRowIndexToModel(row);
-        TableModel model = table.getModel();
+
+        Object stockObj = table.getModel().getValueAt(modelRow, colStockActual);
+        Object minObj   = table.getModel().getValueAt(modelRow, colStockMinimo);
+
+        double stock = 0;
+        double min   = 0;
 
         try {
-            int stockActual = Integer.parseInt(
-                    model.getValueAt(modelRow, COL_STOCK_ACTUAL).toString());
-            int stockMinimo = Integer.parseInt(
-                    model.getValueAt(modelRow, COL_STOCK_MINIMO).toString());
+            if (stockObj != null) stock = Double.parseDouble(stockObj.toString());
+            if (minObj   != null) min   = Double.parseDouble(minObj.toString());
+        } catch (NumberFormatException ex) {
+            
+        }
 
-            if (!isSelected) {
-                if (stockActual <= stockMinimo) {
-                    // Rojo suave
-                    c.setBackground(new Color(255, 180, 180));
-                } else {
-                    c.setBackground(Color.WHITE);
-                }
-            } else {
-                // Respetar color de selección
-                c.setBackground(table.getSelectionBackground());
-            }
-
-        } catch (Exception e) {
-            // Si algo falla, no se hace nada
-            if (!isSelected) {
-                c.setBackground(Color.WHITE);
-            }
+        // Si el stock actual es menor o igual al mínimo, pintar la fila
+        if (!isSelected && stock <= min) {
+            c.setBackground(new Color(255, 204, 204)); // rojo clarito
         }
 
         return c;
     }
 }
-

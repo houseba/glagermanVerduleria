@@ -107,7 +107,6 @@ public class AdminProPage extends javax.swing.JFrame {
             }
         });
 
-        txtRut.setEditable(false);
         txtRut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtRutActionPerformed(evt);
@@ -130,9 +129,17 @@ public class AdminProPage extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Rut", "Nombre", "Contacto", "Dirección"
+                "RUT", "Nombre", "Contacto", "Dirección"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblProveedores.setShowGrid(true);
         tblProveedores.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -142,7 +149,7 @@ public class AdminProPage extends javax.swing.JFrame {
         jScrollPane7.setViewportView(tblProveedores);
 
         jLabel44.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel44.setText("Rut:");
+        jLabel44.setText("RUT:");
 
         cmdActualizarProveedor.setBackground(new java.awt.Color(168, 197, 227));
         cmdActualizarProveedor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -352,7 +359,7 @@ public class AdminProPage extends javax.swing.JFrame {
     }//GEN-LAST:event_tblProveedoresMouseClicked
 
     private void cmdActualizarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdActualizarProveedorActionPerformed
-         int rowSeleccionada = tblProveedores.getSelectedRow();
+        int rowSeleccionada = tblProveedores.getSelectedRow();
         if (rowSeleccionada == -1) {
             JOptionPane.showMessageDialog(this, "Selecciona un proveedor en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -362,6 +369,13 @@ public class AdminProPage extends javax.swing.JFrame {
         String nombre = txtNombre.getText().trim();
         String telefono = txtTelefono.getText().trim();
         String direccion = txtDireccion.getText().trim();
+        
+        rut = rut.replace(".", "").replace("-", "");
+        
+        if (!ValidarRut.esValido(rut)) {
+            JOptionPane.showMessageDialog(this, "El RUT ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         if (rut.isEmpty() || nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "RUT y Nombre son obligatorios.");
@@ -395,6 +409,7 @@ public class AdminProPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "No se encontró el proveedor a actualizar.");
                 return;
             }
+            JOptionPane.showMessageDialog(this, "Proveedor actualizado correctamente.");
             conex.commit();
         } catch (HeadlessException | SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al actualizar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

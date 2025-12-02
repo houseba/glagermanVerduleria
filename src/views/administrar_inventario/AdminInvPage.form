@@ -147,13 +147,13 @@
             </Property>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="7" rowCount="0">
-                <Column editable="true" title="Codigo" type="java.lang.Object"/>
-                <Column editable="true" title="Producto" type="java.lang.Object"/>
-                <Column editable="true" title="precio unitario venta" type="java.lang.Object"/>
-                <Column editable="true" title="unidad medida" type="java.lang.Object"/>
-                <Column editable="true" title="stock actual" type="java.lang.Object"/>
-                <Column editable="true" title="stock minimo" type="java.lang.Object"/>
-                <Column editable="true" title="Categoria" type="java.lang.Object"/>
+                <Column editable="false" title="C&#xf3;digo" type="java.lang.Object"/>
+                <Column editable="false" title="Producto" type="java.lang.Object"/>
+                <Column editable="false" title="Precio unitario venta" type="java.lang.Object"/>
+                <Column editable="false" title="Unidad de medida" type="java.lang.Object"/>
+                <Column editable="false" title="Stock actual" type="java.lang.Object"/>
+                <Column editable="false" title="Stock m&#xed;nimo" type="java.lang.Object"/>
+                <Column editable="false" title="Categor&#xed;a" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="showGrid" type="boolean" value="true"/>
@@ -166,7 +166,7 @@
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Busqueda de productos por nombre:"/>
+        <Property name="text" type="java.lang.String" value="B&#xfa;squeda de productos por nombre:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextField1">

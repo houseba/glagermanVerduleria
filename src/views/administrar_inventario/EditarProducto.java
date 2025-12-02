@@ -333,52 +333,98 @@ public class EditarProducto extends javax.swing.JFrame {
 
     private void cmdEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditarActionPerformed
         String nombreCategoria = cmbCategoria.getSelectedItem().toString();
-        int idCategoria;
-        Connection con = null;
-        
-        try{
-            con = ConexionDB.getConexion();
-            con.setAutoCommit(false);
-            // Obtener id de categoria
-            try (PreparedStatement psCategoria = con.prepareStatement(
-                    "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?")) {
-                psCategoria.setString(1, nombreCategoria);
 
-                try (ResultSet rs = psCategoria.executeQuery()) {
-                    if (!rs.next()) {
-                        con.rollback();
-                        JOptionPane.showMessageDialog(this, "Categoría no encontrada: " + nombreCategoria);
-                        return;
+        try (Connection con = ConexionDB.getConexion()) {
+            try {
+                con.setAutoCommit(false);
+
+                int idCategoria;
+                String sqlCat = "SELECT id_categoria FROM categoria WHERE nombre_categoria = ?";
+
+                try (PreparedStatement psCategoria = con.prepareStatement(sqlCat)) {
+                    psCategoria.setString(1, nombreCategoria);
+
+                    try (ResultSet rs = psCategoria.executeQuery()) {
+                        if (!rs.next()) {
+                            con.rollback();
+                            JOptionPane.showMessageDialog(this, "Categoría no encontrada: " + nombreCategoria);
+                            return;
+                        }
+                        idCategoria = rs.getInt(1);
                     }
-                    idCategoria = rs.getInt(1);
                 }
 
-                // Datos del producto
-                String codProducto = txtCodigo.getText();
-                String nombre = txtNombre.getText();
-                double precio = Double.parseDouble(txtPrecio.getText());
-                double stockMinimo = Double.parseDouble(txtStockMinimo.getText());
-                double nuevoStock = Double.parseDouble(txtStockActual.getText());
+                // Sacar datos del producto desde el formulario
+                String codProducto = txtCodigo.getText().trim();
+                String nombre = txtNombre.getText().trim();
+                String unidadMedida = cmbUnidadMedida.getSelectedItem().toString();
 
-                 // Actualizar producto en la BD
-                String sql = "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, " +
-                             "unidad_medida=?, stock_actual=?, stock_minimo=?, id_categoria=? " +
-                             "WHERE cod_producto=?";
+                // Precio
+                double precio;
+                try {
+                    precio = Double.parseDouble(txtPrecio.getText().trim().replace(',', '.'));
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Precio de venta inválido.");
+                    return;
+                }
 
-                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                // Stock mínimo y actual (permite coma o punto)
+                double stockMinimo;
+                double nuevoStock;
+                try {
+                    String stockMinStr = txtStockMinimo.getText().trim().replace(',', '.');
+                    String stockActStr = txtStockActual.getText().trim().replace(',', '.');
+
+                    stockMinimo = Double.parseDouble(stockMinStr);
+                    nuevoStock  = Double.parseDouble(stockActStr);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Stock mínimo y stock actual deben ser números válidos.");
+                    return;
+                }
+
+                // solo productos en Kilogramo pueden tener decimales
+                boolean esKg = unidadMedida.equalsIgnoreCase("Kilogramo");
+
+                if (!esKg) {
+                    boolean stockMinEsEntero = (stockMinimo % 1 == 0);
+                    boolean stockActEsEntero = (nuevoStock  % 1 == 0);
+
+                    if (!stockMinEsEntero || !stockActEsEntero) {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            "Solo los productos con unidad 'Kilogramo' pueden tener decimales en el stock.\n" +
+                            "Para 'Unidad' o 'Gramo', usa valores enteros.",
+                            "Stock inválido",
+                            JOptionPane.WARNING_MESSAGE
+                        );
+                        return;
+                    }
+                }
+
+                if (stockMinimo < 0 || nuevoStock < 0) {
+                    JOptionPane.showMessageDialog(this, "El stock no puede ser negativo.");
+                    return;
+                }
+
+                // 4) Actualizar Producto
+                String sqlUpdate =
+                    "UPDATE Producto SET nombre_producto=?, precio_unitario_venta=?, " +
+                    "unidad_medida=?, stock_actual=?, stock_minimo=?, id_categoria=? " +
+                    "WHERE cod_producto=?";
+
+                try (PreparedStatement ps = con.prepareStatement(sqlUpdate)) {
                     ps.setString(1, nombre);
                     ps.setDouble(2, precio);
-                    ps.setString(3, cmbUnidadMedida.getSelectedItem().toString());
+                    ps.setString(3, unidadMedida);
                     ps.setDouble(4, nuevoStock);
                     ps.setDouble(5, stockMinimo);
                     ps.setInt(6, idCategoria);
                     ps.setString(7, codProducto);
-
                     ps.executeUpdate();
                 }
 
-                // Ingresar el ajuste de stock en la BD SOLO si se ajustó el stock
-                if (chkModificarStock.isSelected()){
+                // Registrar ajuste de stock SOLO si está marcada la opción y realmente cambió
+                if (chkModificarStock.isSelected()) {
                     double diferencia = nuevoStock - stockOriginal;
 
                     if (diferencia != 0) {
@@ -389,6 +435,7 @@ public class EditarProducto extends javax.swing.JFrame {
                                 "Debes ingresar un motivo de ajuste de stock.");
                             return;
                         }
+
                         String sqlAjusteStock =
                             "INSERT INTO ajuste_inventario " +
                             "(cod_producto, cantidad_ajustada, fecha_ajuste, motivo_ajuste) " +
@@ -396,7 +443,7 @@ public class EditarProducto extends javax.swing.JFrame {
 
                         try (PreparedStatement psAjuste = con.prepareStatement(sqlAjusteStock)) {
                             psAjuste.setString(1, codProducto);
-                            psAjuste.setDouble(2, diferencia);   // ej: -5, +10
+                            psAjuste.setDouble(2, diferencia); // puede ser + o -
                             psAjuste.setString(3, motivo);
                             psAjuste.executeUpdate();
                         }
@@ -405,21 +452,16 @@ public class EditarProducto extends javax.swing.JFrame {
 
                 con.commit();
                 JOptionPane.showMessageDialog(this, "Producto actualizado con éxito.");
-
                 dispose();
                 new AdminInvPage().setVisible(true);
-            }
-        
-        
 
+            } catch (Exception eInner) {
+                try { con.rollback(); } catch (SQLException ignore) {}
+                throw eInner;
+            }
         } catch (Exception e) {
-            try { con.rollback(); } catch (Exception ignore) {}
-            JOptionPane.showMessageDialog(null, "Error al actualizar: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al actualizar: " + e.getMessage());
             e.printStackTrace();
-            
-        // Forzar el cerrado de la BD
-        } finally {
-            try { if (con != null) con.close(); } catch (Exception ignore) {}
         }
     }//GEN-LAST:event_cmdEditarActionPerformed
 

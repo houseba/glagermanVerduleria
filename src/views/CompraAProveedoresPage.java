@@ -216,7 +216,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         txtProductoProveedor.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
 
         jLabel41.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel41.setText("búsqueda de producto:");
+        jLabel41.setText("Búsqueda de producto:");
 
         jLabel42.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel42.setText("Cantidad:");
@@ -304,7 +304,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                                     .addComponent(jLabel40))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cmbProveedor, 0, 306, Short.MAX_VALUE)
+                                    .addComponent(cmbProveedor, 0, 305, Short.MAX_VALUE)
                                     .addComponent(txtProductoProveedor))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

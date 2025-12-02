@@ -28,22 +28,23 @@ public class ReportesPage extends javax.swing.JFrame {
     }
    
     private void cargarTodo() {
-    String inicio = "0000-01-01"; // fecha mínima
-    String fin = "9999-12-31"; // fecha máxima
+        String inicio = "0000-01-01"; // fecha mínima
+        String fin = "9999-12-31"; // fecha máxima
 
-    cargarCompras(inicio, fin);
-    cargarVentas(inicio, fin);
-    cargarGanancias(inicio, fin);
-}
+        cargarCompras(inicio, fin);
+        cargarVentas(inicio, fin);
+        cargarGanancias();
+    }
     
     
-    private void cargarCompras(String inicio, String fin) {
-
+    private int cargarCompras(String inicio, String fin) {
         DefaultTableModel model = (DefaultTableModel) tblCompras.getModel();
         model.setRowCount(0);
 
         String sql = "SELECT fecha_compra, total_compra, rut_proveedor FROM Compra "
-                   + "WHERE fecha_compra BETWEEN ? AND ?";
+            + "WHERE DATE(fecha_compra) BETWEEN DATE(?) AND DATE(?)";
+
+        int totalGeneral = 0;
 
         try (Connection conn = ConexionDB.getConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -51,35 +52,36 @@ public class ReportesPage extends javax.swing.JFrame {
             ps.setString(1, inicio);
             ps.setString(2, fin);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String fecha = rs.getString("fecha_compra");
+                    int total = rs.getInt("total_compra");
+                    String proveedor = rs.getString("rut_proveedor");
 
-            int totalGeneral = 0;
-
-            while (rs.next()) {
-                String fecha = rs.getString("fecha_compra");
-                int total = rs.getInt("total_compra");
-                String proveedor = rs.getString("rut_proveedor");
-
-                model.addRow(new Object[]{fecha, proveedor, total});
-
-                totalGeneral += total;
+                    model.addRow(new Object[]{fecha, proveedor, total});
+                    totalGeneral += total;
+                }
             }
 
             txtComprasT.setText(String.valueOf(totalGeneral));
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error cargando compras: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error cargando compras: " + e.getMessage());
         }
 
+        return totalGeneral;
     }
-    
-    private void cargarVentas(String inicio, String fin) {
 
+
+    
+    private int cargarVentas(String inicio, String fin) {
         DefaultTableModel model = (DefaultTableModel) tblVentas.getModel();
         model.setRowCount(0);
 
         String sql = "SELECT fecha_venta, total_venta FROM Venta "
-                   + "WHERE fecha_venta BETWEEN ? AND ?";
+            + "WHERE DATE(fecha_venta) BETWEEN DATE(?) AND DATE(?)";
+
+        int totalGeneral = 0;
 
         try (Connection conn = ConexionDB.getConexion();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -87,46 +89,49 @@ public class ReportesPage extends javax.swing.JFrame {
             ps.setString(1, inicio);
             ps.setString(2, fin);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String fecha = rs.getString("fecha_venta");
+                    int total = rs.getInt("total_venta");
 
-            int totalGeneral = 0;
-
-            while (rs.next()) {
-                String fecha = rs.getString("fecha_venta");
-                int total = rs.getInt("total_venta");
-
-                model.addRow(new Object[]{fecha, total});
-
-                totalGeneral += total;
+                    model.addRow(new Object[]{fecha, total});
+                    totalGeneral += total;
+                }
             }
 
             txtVentasT.setText(String.valueOf(totalGeneral));
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error cargando ventas: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error cargando ventas: " + e.getMessage());
         }
 
+        return totalGeneral;
     }
+
+
     
-    private void cargarGanancias(String inicio, String fin) {
-        // Primero cargamos tablas y totales para ese rango
-        cargarCompras(inicio, fin);
-        cargarVentas(inicio, fin);
+    private void cargarGanancias() {
+        int totalVentas = 0;
+        int totalCompras = 0;
 
-        // Ahora usamos los totales calculados
-        int totalVentas = Integer.parseInt(txtVentasT.getText());
-        int totalCompras = Integer.parseInt(txtComprasT.getText());
+        try {
+            totalVentas = Integer.parseInt(txtVentasT.getText());
+        } catch (NumberFormatException ignored) {
+            JOptionPane.showMessageDialog(this, "Error al cargar ganancias.", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            totalCompras = Integer.parseInt(txtComprasT.getText());
+        } catch (NumberFormatException ignored) {
+            JOptionPane.showMessageDialog(this, "Error al cargar ganancias.", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         int ganancias = totalVentas - totalCompras;
-
         txtTotal.setText(String.valueOf(ganancias));
     }
 
-    
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -351,7 +356,7 @@ public class ReportesPage extends javax.swing.JFrame {
         
         cargarVentas(fechaInicio, fechaFin);
         cargarCompras(fechaInicio, fechaFin);
-        cargarGanancias(fechaInicio, fechaFin);
+        cargarGanancias();
     }//GEN-LAST:event_cmdBuscarActionPerformed
 
     private void cmdVolverReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdVolverReportesActionPerformed

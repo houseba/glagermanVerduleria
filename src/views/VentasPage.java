@@ -372,7 +372,7 @@ public class VentasPage extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel5.setText("Total:");
 
-        txtTotal.setEnabled(false);
+        txtTotal.setEditable(false);
 
         txtCantidad.setBackground(new java.awt.Color(237, 237, 237));
 

@@ -42,12 +42,33 @@ public class ReportesPage extends javax.swing.JFrame {
         model.setRowCount(0);
 
         String sql = "SELECT fecha_compra, total_compra, rut_proveedor FROM Compra "
-            + "WHERE DATE(fecha_compra) BETWEEN DATE(?) AND DATE(?)";
+                   + "WHERE DATE(fecha_compra) BETWEEN DATE(?) AND DATE(?)";
 
         int totalGeneral = 0;
 
-        try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn;
+        try {
+            conn = ConexionDB.getConexion();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtComprasT.setText("0");
+            return 0;
+        }
+
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtComprasT.setText("0");
+            return 0;
+        }
+
+        try (Connection c = conn;
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, inicio);
             ps.setString(2, fin);
@@ -65,26 +86,51 @@ public class ReportesPage extends javax.swing.JFrame {
 
             txtComprasT.setText(String.valueOf(totalGeneral));
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error cargando compras: " + e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error cargando compras: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtComprasT.setText("0");
+            return 0;
         }
 
         return totalGeneral;
     }
 
 
-    
     private int cargarVentas(String inicio, String fin) {
         DefaultTableModel model = (DefaultTableModel) tblVentas.getModel();
         model.setRowCount(0);
 
         String sql = "SELECT fecha_venta, total_venta FROM Venta "
-            + "WHERE DATE(fecha_venta) BETWEEN DATE(?) AND DATE(?)";
+                   + "WHERE DATE(fecha_venta) BETWEEN DATE(?) AND DATE(?)";
 
         int totalGeneral = 0;
 
-        try (Connection conn = ConexionDB.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn;
+        try {
+            conn = ConexionDB.getConexion();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtVentasT.setText("0");
+            return 0;
+        }
+
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtVentasT.setText("0");
+            return 0;
+        }
+
+        try (Connection c = conn;
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, inicio);
             ps.setString(2, fin);
@@ -101,34 +147,37 @@ public class ReportesPage extends javax.swing.JFrame {
 
             txtVentasT.setText(String.valueOf(totalGeneral));
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error cargando ventas: " + e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error cargando ventas: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            txtVentasT.setText("0");
+            return 0;
         }
 
         return totalGeneral;
     }
 
-
-    
     private void cargarGanancias() {
-        int totalVentas = 0;
-        int totalCompras = 0;
+        long totalVentas;
+        long totalCompras;
 
         try {
-            totalVentas = Integer.parseInt(txtVentasT.getText());
+            totalVentas = Long.parseLong(txtVentasT.getText().trim());
         } catch (NumberFormatException ignored) {
             JOptionPane.showMessageDialog(this, "Error al cargar ganancias.", "Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            totalCompras = Integer.parseInt(txtComprasT.getText());
+            totalCompras = Long.parseLong(txtComprasT.getText().trim());
         } catch (NumberFormatException ignored) {
             JOptionPane.showMessageDialog(this, "Error al cargar ganancias.", "Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int ganancias = totalVentas - totalCompras;
+        long ganancias = totalVentas - totalCompras;
         txtTotal.setText(String.valueOf(ganancias));
     }
 
@@ -187,7 +236,6 @@ public class ReportesPage extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel5.setText("Fecha fin:");
 
-        tblCompras.setAutoCreateRowSorter(true);
         tblCompras.setBackground(new java.awt.Color(237, 237, 237));
         tblCompras.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblCompras.setModel(new javax.swing.table.DefaultTableModel(
@@ -197,7 +245,15 @@ public class ReportesPage extends javax.swing.JFrame {
             new String [] {
                 "Fecha", "Proveedor", "Total"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblCompras.setFocusable(false);
         tblCompras.setShowGrid(true);
         jScrollPane8.setViewportView(tblCompras);
@@ -227,6 +283,7 @@ public class ReportesPage extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel7.setText("Total Ventas:");
 
+        txtComprasT.setEditable(false);
         txtComprasT.setBackground(new java.awt.Color(237, 237, 237));
         txtComprasT.setFocusable(false);
         txtComprasT.addActionListener(new java.awt.event.ActionListener() {
@@ -235,6 +292,7 @@ public class ReportesPage extends javax.swing.JFrame {
             }
         });
 
+        txtVentasT.setEditable(false);
         txtVentasT.setBackground(new java.awt.Color(237, 237, 237));
         txtVentasT.setFocusable(false);
         txtVentasT.addActionListener(new java.awt.event.ActionListener() {
@@ -246,6 +304,7 @@ public class ReportesPage extends javax.swing.JFrame {
         jLabel8.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel8.setText("Total Compras:");
 
+        txtTotal.setEditable(false);
         txtTotal.setBackground(new java.awt.Color(237, 237, 237));
         txtTotal.setFocusable(false);
 

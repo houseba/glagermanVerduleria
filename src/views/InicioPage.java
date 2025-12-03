@@ -1,9 +1,14 @@
 // prueba de commit
 package views;
 import views.administrar_inventario.AdminInvPage;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 import posglagerman.ConexionDB;
 public class InicioPage extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(InicioPage.class.getName());
 
     /**
@@ -13,11 +18,9 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        // Verificar DB y cerrar la conexión de prueba
-        try (java.sql.Connection conex = posglagerman.ConexionDB.getConexion()) {
-        } catch (java.sql.SQLException ex) {
-            logger.log(java.util.logging.Level.SEVERE, "Error al cerrar conexión de verificación", ex);
-        }
+
+        // Se eliminó la verificación de conexión de aquí.
+        // La comprobación de inicio se realiza una sola vez en main().
     }
 
     /**
@@ -160,31 +163,31 @@ public class InicioPage extends javax.swing.JFrame {
     private void cmdVentasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdVentasActionPerformed
         VentasPage ventasPage = new VentasPage();
         ventasPage.setVisible(true);
-        this.setVisible(false);
+        this.dispose(); // liberar recursos en vez de setVisible(false)
     }//GEN-LAST:event_cmdVentasActionPerformed
 
     private void cmdComprasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdComprasActionPerformed
         CompraAProveedoresPage comprasPage = new CompraAProveedoresPage();
         comprasPage.setVisible(true);       
-        this.setVisible(false);
+        this.dispose(); // liberar recursos
     }//GEN-LAST:event_cmdComprasActionPerformed
 
     private void cmdProveedoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdProveedoresActionPerformed
         AdminProPage administrarPage = new AdminProPage();
         administrarPage.setVisible(true);   
-        this.setVisible(false);// TODO add your handling code here:
+        this.dispose(); // liberar recursos
     }//GEN-LAST:event_cmdProveedoresActionPerformed
 
     private void cmdInventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdInventarioActionPerformed
         AdminInvPage administrarInvPage = new AdminInvPage();
         administrarInvPage.setVisible(true);   
-        this.setVisible(false);// TODO add your handling code here:
+        this.dispose(); // liberar recursos
     }//GEN-LAST:event_cmdInventarioActionPerformed
 
     private void cmdReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdReportesActionPerformed
         ReportesPage AdminReportesPage = new ReportesPage();
         AdminReportesPage.setVisible(true);   
-        this.setVisible(false);
+        this.dispose(); // liberar recursos
     }//GEN-LAST:event_cmdReportesActionPerformed
 
     /**
@@ -193,9 +196,6 @@ public class InicioPage extends javax.swing.JFrame {
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -208,8 +208,22 @@ public class InicioPage extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new InicioPage().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> {
+            Connection conex = posglagerman.ConexionDB.getConexionOrShowDialog();
+            if (conex != null) {
+                try {
+                    conex.close();
+                } catch (SQLException ex) {
+                    logger.log(java.util.logging.Level.WARNING, "Error cerrando conexión de verificación al iniciar", ex);
+                }
+                // Mostrar mensaje de éxito UNA sola vez al inicio de la app.
+                JOptionPane.showMessageDialog(null,
+                    "Sistema abierto correctamente.",
+                    "Conexión exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+            new InicioPage().setVisible(true);
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

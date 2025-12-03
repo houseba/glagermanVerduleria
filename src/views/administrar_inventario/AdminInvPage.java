@@ -49,8 +49,8 @@ public class AdminInvPage extends javax.swing.JFrame {
                 "ORDER BY p.nombre_producto";
 
             try (Connection conn = ConexionDB.getConexion();
-                 PreparedStatement ps = conn.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
                     String cod = rs.getString("cod_producto");
@@ -109,7 +109,7 @@ public class AdminInvPage extends javax.swing.JFrame {
                 "ORDER BY p.nombre_producto";
 
             try (Connection conn = ConexionDB.getConexion();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
                 ps.setString(1, "%" + busqueda + "%");
                 ps.setString(2, "%" + busqueda + "%");
@@ -215,7 +215,6 @@ public class AdminInvPage extends javax.swing.JFrame {
         jLabel39.setText("Administrar Inventario");
         jLabel39.setToolTipText("");
 
-        tblCompra.setAutoCreateRowSorter(true);
         tblCompra.setBackground(new java.awt.Color(237, 237, 237));
         tblCompra.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblCompra.setModel(new javax.swing.table.DefaultTableModel(

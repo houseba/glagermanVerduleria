@@ -15,27 +15,71 @@ import views.InicioPage;
 public class AgregarProductoPage extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AgregarProductoPage.class.getName());
+    
+    private String normalizarNombreProducto(String nombre) {
+        if (nombre == null) return "";
+        nombre = nombre.trim();
+        nombre = nombre.replaceAll("\\s+", " "); // colapsar espacios dobles
+        if (nombre.isEmpty()) return "";
+        return nombre;
+    }
+    
+    private boolean validarCodigoExiste(String codProducto) {
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(
+                 "SELECT 1 FROM Producto WHERE UPPER(cod_producto) = ? LIMIT 1")) {
 
-    private void cargarCategoria(){
-        cmbCategoria.removeAllItems();
-        try{
-            Connection conex = ConexionDB.getConexion();
-            try (Statement stm = conex.createStatement(); ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria")) {
-                
-                while (rs.next()) {
-                    String nombreCategoria = rs.getString("nombre_categoria");
-                    cmbCategoria.addItem(nombreCategoria);
+            ps.setString(1, codProducto.toUpperCase(java.util.Locale.ROOT).trim());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(this,
+                        "Ya existe un producto con el código " + codProducto + ".");
+                    return false;
                 }
             }
-        }catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar categorias: " + e.getMessage());
+            return true;
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error validando código: " + e.getMessage());
+            return false;
         }
     }
+
+
+    private void cargarCategoria() {
+        cmbCategoria.removeAllItems();
+
+        String sql = "SELECT nombre_categoria FROM categoria ORDER BY nombre_categoria";
+
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String nombreCategoria = rs.getString("nombre_categoria");
+                cmbCategoria.addItem(nombreCategoria);
+            }
+
+            if (cmbCategoria.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(this,
+                    "No hay categorías creadas. Debe crear al menos una categoría antes de agregar productos.");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar categorías: " + e.getMessage());
+        }
+    }
+
     
     private void insertarProducto(){
         String codProducto = txtCodProducto.getText().toUpperCase().trim();
-        String nombreProducto = txtNomProducto.getText().trim();
+        String nombreProducto = normalizarNombreProducto(txtNomProducto.getText());
         String unidadMedida = String.valueOf(cmbUMedida.getSelectedItem());
+        if (cmbCategoria.getItemCount() == 0 || cmbCategoria.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una categoría válida.");
+            return;
+        }
         String nombreCategoria = String.valueOf(cmbCategoria.getSelectedItem());
 
         Integer precioVenta;
@@ -52,11 +96,15 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         // siempre entero (CLP sin decimales)
         try {
             precioVenta = Integer.valueOf(txtPrecioVenta.getText().trim());
+            if (precioVenta <= 0){
+                JOptionPane.showMessageDialog(this, "El precio de venta debe ser mayor a $0.");
+            return;
+            }
         } catch (NumberFormatException nfe) {
             JOptionPane.showMessageDialog(this, "El precio de venta debe ser un número entero.");
             return;
         }
-
+        
         // permitir decimales solo si la unidad es Kilogramo
         try {
             String stockActStr = txtStockActual.getText().trim().replace(',', '.');
@@ -92,61 +140,64 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             }
         }
 
-        // Validar duplicados en bd (por nombre)
+        // Validar duplicados en bd (por nombre y codigo)
+        if (!validarCodigoExiste(codProducto)) return;
         if (!validarSiExiste()) return;
 
         try (Connection conex = ConexionDB.getConexion()) {
             conex.setAutoCommit(false);
-            Integer idCategoria = null;
+            try {
+                Integer idCategoria = null;
 
-            // Obtener id_categoria
-            try (PreparedStatement psCategoria = conex.prepareStatement(
-                     "SELECT id_categoria FROM Categoria WHERE nombre_categoria = ?")) {
-                psCategoria.setString(1, nombreCategoria);
-                try (ResultSet rs = psCategoria.executeQuery()) {
-                    if (rs.next()) {
-                        idCategoria = rs.getInt(1);
-                    } else {
-                        conex.rollback();
-                        JOptionPane.showMessageDialog(this, "Categoría no encontrada.");
-                        return;
+                // Obtener id_categoria
+                try (PreparedStatement psCategoria = conex.prepareStatement(
+                         "SELECT id_categoria FROM Categoria WHERE nombre_categoria = ?")) {
+                    psCategoria.setString(1, nombreCategoria);
+                    try (ResultSet rs = psCategoria.executeQuery()) {
+                        if (rs.next()) {
+                            idCategoria = rs.getInt(1);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Categoría no encontrada.");
+                            conex.rollback();
+                            return;
+                        }
                     }
                 }
+
+                String sqlInsert =
+                    "INSERT INTO Producto " +
+                    "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, " +
+                    " stock_actual, stock_minimo, id_categoria) " +
+                    "VALUES (?,?,?,?,?,?,?)";
+
+                try (PreparedStatement ps = conex.prepareStatement(sqlInsert)) {
+                    ps.setString(1, codProducto);
+                    ps.setString(2, nombreProducto);
+                    ps.setInt(3, precioVenta);
+                    ps.setString(4, unidadMedida);
+                    ps.setDouble(5, stockActual);
+                    ps.setDouble(6, stockMinimo);
+                    ps.setInt(7, idCategoria);
+
+                    ps.executeUpdate();
+                }
+
+                conex.commit();
+                JOptionPane.showMessageDialog(this, "Se agregó el producto.");
+                AdminInvPage adminInvPage = new AdminInvPage();
+                adminInvPage.setVisible(true);
+                this.dispose();
+
+            } catch (SQLException ex) {
+                conex.rollback();
+                throw ex;
             }
-
-            // Insertar producto
-            String sqlInsert =
-                "INSERT INTO Producto " +
-                "(cod_producto, nombre_producto, precio_unitario_venta, unidad_medida, " +
-                " stock_actual, stock_minimo, id_categoria) " +
-                "VALUES (?,?,?,?,?,?,?)";
-
-            try (PreparedStatement ps = conex.prepareStatement(sqlInsert)) {
-                ps.setString(1, codProducto);
-                ps.setString(2, nombreProducto);
-                ps.setInt(3, precioVenta);
-                ps.setString(4, unidadMedida);
-                ps.setDouble(5, stockActual);
-                ps.setDouble(6, stockMinimo);
-                ps.setInt(7, idCategoria);
-
-                ps.executeUpdate();
-            }
-
-            conex.commit();
-
-            JOptionPane.showMessageDialog(this, "Se agregó el producto.");
-            AdminInvPage adminInvPage = new AdminInvPage();
-            adminInvPage.setVisible(true);
-            this.setVisible(false);
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al agregar el producto: " + e.getMessage());
         }
     }
-
-
-    
+  
     public AgregarProductoPage() {
         initComponents();
         setLocationRelativeTo(null);
@@ -274,7 +325,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addGap(67, 67, 67)
-                                .addComponent(txtStockMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE))
+                                .addComponent(txtStockMinimo))
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
@@ -291,7 +342,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(299, 299, 299)
                 .addComponent(jLabel39)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 298, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -310,11 +361,9 @@ public class AgregarProductoPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(txtPrecioVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(4, 4, 4)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(jLabel4))
+                .addGap(24, 24, 24)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
                     .addComponent(cmbUMedida, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -350,7 +399,6 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarProductoActionPerformed
-
         insertarProducto();
     }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
@@ -407,7 +455,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private boolean validarSiExiste() {
-        String nombre = txtNomProducto.getText();
+        String nombre = normalizarNombreProducto(txtNomProducto.getText());
         String nombreUC = nombre.toUpperCase(java.util.Locale.ROOT).trim();
 
         try (Connection conex = ConexionDB.getConexion();
@@ -431,5 +479,4 @@ public class AgregarProductoPage extends javax.swing.JFrame {
             return false;
         }
     }
-
 }

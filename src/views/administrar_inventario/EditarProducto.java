@@ -8,34 +8,42 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import javax.swing.JOptionPane;
 import posglagerman.ConexionDB;
-import views.administrar_inventario.AdminInvPage;
 
 
 public class EditarProducto extends javax.swing.JFrame {
     private double stockOriginal;
     
-    private void cargarCategoria(){
+    private void cargarCategoria() {
         cmbCategoria.removeAllItems();
-        try{
-            Connection conex = ConexionDB.getConexion();
-            try (Statement stm = conex.createStatement(); ResultSet rs = stm.executeQuery("SELECT nombre_categoria FROM categoria")) {
-                
-                while (rs.next()) {
-                    String nombreCategoria = rs.getString("nombre_categoria");
-                    cmbCategoria.addItem(nombreCategoria);
-                }
+        String sql = "SELECT nombre_categoria FROM categoria ORDER BY nombre_categoria";
+
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String nombreCategoria = rs.getString("nombre_categoria");
+                cmbCategoria.addItem(nombreCategoria);
             }
-        }catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar categorias: " + e.getMessage());
+
+            if (cmbCategoria.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(this,
+                    "No hay categorías creadas. Debe crear al menos una categoría antes de editar productos.");
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar categorias: " + e.getMessage());
         }
     }
+
    
     public EditarProducto() {
         initComponents();
         cargarCombo();
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
 
     // ------------------------------------
@@ -47,9 +55,9 @@ public class EditarProducto extends javax.swing.JFrame {
 
         initComponents();
         cargarCombo();
+        cargarCategoria();
         setLocationRelativeTo(null);
         setResizable(false);
-        cargarCategoria();
 
         txtCodigo.setText(cod);
         txtNombre.setText(nombre);
@@ -77,6 +85,43 @@ public class EditarProducto extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     
     
+    private String normalizarNombreProducto(String nombre) {
+        if (nombre == null) return "";
+        nombre = nombre.trim();
+        nombre = nombre.replaceAll("\\s+", " "); // colapsar espacios dobles
+        if (nombre.isEmpty()) return "";
+        return nombre;
+    }
+    
+    private boolean validarSiExiste(String nombre, String codProducto) {
+        String nombreUC = nombre.toUpperCase(java.util.Locale.ROOT).trim();
+
+        String sql = "SELECT 1 FROM Producto " +
+                     "WHERE UPPER(nombre_producto) = ? " +
+                     "AND UPPER(cod_producto) <> ? " +   // excluir el propio
+                     "LIMIT 1";
+
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(sql)) {
+
+            ps.setString(1, nombreUC);
+            ps.setString(2, codProducto.toUpperCase(java.util.Locale.ROOT).trim());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(this,
+                        "Ya existe otro producto con el nombre " + nombre + ".");
+                    return false;
+                }
+            }
+
+            return true;
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error validando duplicados: " + e.getMessage());
+            return false;
+        }
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -114,7 +159,7 @@ public class EditarProducto extends javax.swing.JFrame {
             }
         });
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Editar producto");
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -143,7 +188,7 @@ public class EditarProducto extends javax.swing.JFrame {
         jLabel6.setText("Stock mínimo:");
 
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jLabel7.setText("Categoria");
+        jLabel7.setText("Categoría");
 
         cmdEditar.setBackground(new java.awt.Color(168, 197, 227));
         cmdEditar.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
@@ -168,8 +213,10 @@ public class EditarProducto extends javax.swing.JFrame {
         txtNombre.setBackground(new java.awt.Color(237, 237, 237));
         txtNombre.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
 
+        txtCodigo.setEditable(false);
         txtCodigo.setBackground(new java.awt.Color(237, 237, 237));
         txtCodigo.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        txtCodigo.setFocusable(false);
         txtCodigo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtCodigoActionPerformed(evt);
@@ -332,8 +379,31 @@ public class EditarProducto extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
     private void cmdEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditarActionPerformed
-        String nombreCategoria = cmbCategoria.getSelectedItem().toString();
+        String codProducto = txtCodigo.getText().trim();
+        String nombre = normalizarNombreProducto(txtNombre.getText());
+        
+        if (codProducto.isEmpty() || nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Código y nombre del producto son obligatorios.");
+            return;
+        }
+        
+        if (cmbUnidadMedida.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this,
+                "Debes seleccionar una unidad de medida.");
+            return;
+        }
 
+        if (cmbCategoria.getItemCount() == 0 || cmbCategoria.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this,
+                "Debes seleccionar una categoría válida.");
+            return;
+        }
+        String nombreCategoria = cmbCategoria.getSelectedItem().toString();
+        
+        // Validar duplicados en bd
+        if (!validarSiExiste(nombre, codProducto)) return;
+        
         try (Connection con = ConexionDB.getConexion()) {
             try {
                 con.setAutoCommit(false);
@@ -355,14 +425,17 @@ public class EditarProducto extends javax.swing.JFrame {
                 }
 
                 // Sacar datos del producto desde el formulario
-                String codProducto = txtCodigo.getText().trim();
-                String nombre = txtNombre.getText().trim();
                 String unidadMedida = cmbUnidadMedida.getSelectedItem().toString();
 
                 // Precio
-                double precio;
+                int precio;
                 try {
-                    precio = Double.parseDouble(txtPrecio.getText().trim().replace(',', '.'));
+                    precio = Integer.parseInt(txtPrecio.getText().trim());
+                    if (precio <= 0) {
+                        JOptionPane.showMessageDialog(this,
+                            "El precio de venta debe ser un número entero mayor a $0.");
+                        return;
+                    }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Precio de venta inválido.");
                     return;
@@ -414,7 +487,7 @@ public class EditarProducto extends javax.swing.JFrame {
 
                 try (PreparedStatement ps = con.prepareStatement(sqlUpdate)) {
                     ps.setString(1, nombre);
-                    ps.setDouble(2, precio);
+                    ps.setInt(2, precio);
                     ps.setString(3, unidadMedida);
                     ps.setDouble(4, nuevoStock);
                     ps.setDouble(5, stockMinimo);

@@ -22,30 +22,31 @@ public class AdminProPage extends javax.swing.JFrame {
     }
     
     private void ListarProveedores() {
-        DefaultTableModel model = (DefaultTableModel)tblProveedores.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblProveedores.getModel();
         model.setRowCount(0);
-        
+
         String sql = "SELECT rut_proveedor, nombre_proveedor, " +
-                 "IFNULL(direccion_proveedor,''), IFNULL(contacto_proveedor,'') " +
-                 "FROM proveedor";
-        
-        try {
-            Connection conex = ConexionDB.getConexion();
-            PreparedStatement ps = conex.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            
+                     "IFNULL(direccion_proveedor,''), IFNULL(contacto_proveedor,'') " +
+                     "FROM proveedor";
+
+        try (Connection conex = ConexionDB.getConexion();
+             PreparedStatement ps = conex.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getString(1), // RUT
-                rs.getString(2), // Nombre
-                rs.getString(4), // Contacto
-                rs.getString(3)  // Direccion
-            });
-        }
+                model.addRow(new Object[]{
+                    rs.getString(1), // RUT
+                    rs.getString(2), // Nombre
+                    rs.getString(4), // Contacto
+                    rs.getString(3)  // Direccion
+                });
+            }
+
         } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error al listar proveedores: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al listar proveedores: " + e.getMessage());
+        }
     }
-    }
+
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -121,7 +122,6 @@ public class AdminProPage extends javax.swing.JFrame {
         jLabel42.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel42.setText("Dirección:");
 
-        tblProveedores.setAutoCreateRowSorter(true);
         tblProveedores.setBackground(new java.awt.Color(237, 237, 237));
         tblProveedores.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblProveedores.setModel(new javax.swing.table.DefaultTableModel(
@@ -241,36 +241,35 @@ public class AdminProPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdEliminarProveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEliminarProveedorActionPerformed
-        int rowSeleccionado = tblProveedores.getSelectedRow();
-        
-        if (rowSeleccionado == -1){
+        int viewRow = tblProveedores.getSelectedRow();
+        if (viewRow == -1) {
             JOptionPane.showMessageDialog(this, "Selecciona un proveedor en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        DefaultTableModel model = (DefaultTableModel)tblProveedores.getModel();
-        String rut = String.valueOf(model.getValueAt(rowSeleccionado, 0)); // col 0
-        String nombre = String.valueOf(model.getValueAt(rowSeleccionado, 1)); // col 1
-        
+
+        int modelRow = tblProveedores.convertRowIndexToModel(viewRow);
+        DefaultTableModel model = (DefaultTableModel) tblProveedores.getModel();
+        String rut = String.valueOf(model.getValueAt(modelRow, 0));
+        String nombre = String.valueOf(model.getValueAt(modelRow, 1));
+
         int ok = JOptionPane.showConfirmDialog(
             this,
             "¿Eliminar proveedor?\n" + nombre + " (" + rut + ")",
             "Confirmar eliminación",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.WARNING_MESSAGE
-    );
-    if (ok == JOptionPane.NO_OPTION) return;
-    
-    //Connection conex = null;
-    try{
-        Connection conex = ConexionDB.getConexion();
-        conex.setAutoCommit(false);
-        
-        try (Statement stm = conex.createStatement()) {
-            stm.execute("PRAGMA foreign_keys = ON"); // activar las claves foraneas
-        }
-        try (PreparedStatement ps = conex.prepareStatement(
-                "DELETE FROM proveedor WHERE rut_proveedor = ?")) {
+        );
+        if (ok != JOptionPane.YES_OPTION) return;
+
+        String sql = "DELETE FROM proveedor WHERE rut_proveedor = ?";
+
+        try (Connection conex = ConexionDB.getConexion();
+             Statement stm = conex.createStatement();
+             PreparedStatement ps = conex.prepareStatement(sql)) {
+
+            conex.setAutoCommit(false);
+            stm.execute("PRAGMA foreign_keys = ON");
+
             ps.setString(1, rut);
             int rows = ps.executeUpdate();
             if (rows == 0) {
@@ -278,12 +277,25 @@ public class AdminProPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "El proveedor no existe.");
                 return;
             }
-        } 
-        JOptionPane.showMessageDialog(this, "Proveedor eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error al eliminar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-        
+
+            conex.commit();
+            JOptionPane.showMessageDialog(this, "Proveedor eliminado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("foreign key constraint") || msg.contains("foreign key")) {
+                JOptionPane.showMessageDialog(this,
+                        "No se puede eliminar el proveedor porque está asociado a compras u otros registros.",
+                        "No se puede eliminar",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Error al eliminar el proveedor:\n" + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
         ListarProveedores();
     }//GEN-LAST:event_cmdEliminarProveedorActionPerformed
 
@@ -304,26 +316,27 @@ public class AdminProPage extends javax.swing.JFrame {
 
         // Validar que los campos obligatorios estén completos
         if (nombre.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor completa todos los campos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Por favor completa todos los campos.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        Connection conn = ConexionDB.getConexion();
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        String sql = "INSERT INTO proveedor (rut_proveedor, nombre_proveedor, contacto_proveedor, direccion_proveedor) "
+                   + "VALUES (?, ?, ?, ?)";
 
-        try {
-            String sql = "INSERT INTO proveedor (rut_proveedor, nombre_proveedor, contacto_proveedor, direccion_proveedor) VALUES (?, ?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, rut);
-            ps.setString(2, nombre);
-            ps.setString(3, telefono);
-            ps.setString(4, direccion);
-            ps.executeUpdate();
-            
-            
+        try (Connection conn = ConexionDB.getConexion()) {
+
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, rut);
+                ps.setString(2, nombre);
+                ps.setString(3, telefono);
+                ps.setString(4, direccion);
+                ps.executeUpdate();
+            }
 
             JOptionPane.showMessageDialog(this, "Proveedor agregado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
@@ -333,9 +346,26 @@ public class AdminProPage extends javax.swing.JFrame {
             txtNombre.setText("");
             txtDireccion.setText("");
 
-        } catch (HeadlessException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al guardar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("unique constraint failed") && msg.contains("rut_proveedor")) {
+                JOptionPane.showMessageDialog(this,
+                        "Ya existe un proveedor registrado con ese RUT.",
+                        "RUT duplicado",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Error al guardar el proveedor:\n" + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al guardar el proveedor:\n" + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
+
         ListarProveedores();
     }//GEN-LAST:event_cmdAgregarProveedorActionPerformed
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
@@ -364,45 +394,44 @@ public class AdminProPage extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Selecciona un proveedor en la tabla.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         String rut = txtRut.getText().trim();
         String nombre = txtNombre.getText().trim();
         String telefono = txtTelefono.getText().trim();
         String direccion = txtDireccion.getText().trim();
-        
+
         rut = rut.replace(".", "").replace("-", "");
-        
+
         if (!ValidarRut.esValido(rut)) {
             JOptionPane.showMessageDialog(this, "El RUT ingresado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         if (rut.isEmpty() || nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "RUT y Nombre son obligatorios.");
             return;
         }
-        
+
         DefaultTableModel m = (DefaultTableModel) tblProveedores.getModel();
         String rutOriginal = String.valueOf(m.getValueAt(rowSeleccionada, 0));
-        
-        try{
-            Connection conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false);
-            try (Statement stm = conex.createStatement()) {
-                stm.execute("PRAGMA foreign_keys = ON");
-            }
-            
-            String sql = "UPDATE proveedor " +
+
+        String sql = "UPDATE proveedor " +
                      "SET rut_proveedor = ?, nombre_proveedor = ?, contacto_proveedor = ?, direccion_proveedor = ? " +
                      "WHERE rut_proveedor = ?";
-        
-            PreparedStatement ps = conex.prepareStatement(sql);
+
+        try (Connection conex = ConexionDB.getConexion();
+            Statement stm = conex.createStatement();
+            PreparedStatement ps = conex.prepareStatement(sql)) {
+
+            conex.setAutoCommit(false);
+            stm.execute("PRAGMA foreign_keys = ON");
+
             ps.setString(1, rut);
             ps.setString(2, nombre);
             ps.setString(3, telefono);
             ps.setString(4, direccion);
             ps.setString(5, rutOriginal);
-                
+
             int rows = ps.executeUpdate();
             if (rows == 0) {
                 conex.rollback();
@@ -411,8 +440,17 @@ public class AdminProPage extends javax.swing.JFrame {
             }
             JOptionPane.showMessageDialog(this, "Proveedor actualizado correctamente.");
             conex.commit();
+
         } catch (HeadlessException | SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al actualizar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("unique constraint failed") && msg.contains("rut_proveedor")) {
+                JOptionPane.showMessageDialog(this,
+                        "Ya existe un proveedor registrado con ese RUT.",
+                        "RUT duplicado",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al actualizar el proveedor:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
         ListarProveedores();    
     }//GEN-LAST:event_cmdActualizarProveedorActionPerformed

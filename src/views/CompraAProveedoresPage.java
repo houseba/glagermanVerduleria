@@ -15,18 +15,44 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
     private void cargarProveedores() {
         cmbProveedor.removeAllItems();
         String sql = "SELECT nombre_proveedor FROM Proveedor";
-        try (Connection conex = ConexionDB.getConexion();
-            Statement stm = conex.createStatement();
-            ResultSet rs = stm.executeQuery(sql)) {
+
+        Connection conex;
+        try {
+            conex = ConexionDB.getConexion();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (conex == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try (Connection c = conex;
+             Statement stm = c.createStatement();
+             ResultSet rs = stm.executeQuery(sql)) {
+
             while (rs.next()) {
                 cmbProveedor.addItem(rs.getString("nombre_proveedor"));
             }
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar proveedores: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                "Error al cargar proveedores: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
-    
+
     private void RegistrarCompra() {
         String nombreProveedor = String.valueOf(cmbProveedor.getSelectedItem());
         if (nombreProveedor == null || nombreProveedor.trim().isEmpty()) {
@@ -50,111 +76,123 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         }
         long totalCompra = Math.round(totalCompraDouble); // Se inserta entero en pesos
 
-        Connection conex = null;
+        try (Connection conex = ConexionDB.getConexion()) {
 
-        try {
-            conex = ConexionDB.getConexion();
-            conex.setAutoCommit(false);
-
-            // Obtener RUT del proveedor
-            String rutProveedor;
-            try (PreparedStatement psProveedor = conex.prepareStatement(
-                     "SELECT rut_proveedor FROM Proveedor WHERE nombre_proveedor = ?")) {
-
-                psProveedor.setString(1, nombreProveedor);
-
-                try (ResultSet rsProv = psProveedor.executeQuery()) {
-                    if (rsProv.next()) {
-                        rutProveedor = rsProv.getString("rut_proveedor");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
-                        conex.rollback();
-                        return;
-                    }
-                }
+            if (conex == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Error al conectar con la base de datos.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
-            // Insertar la compra (incluyendo total_compra)
-            int idCompra;
-            try (PreparedStatement psCompra = conex.prepareStatement(
-                     "INSERT INTO Compra (fecha_compra, rut_proveedor, total_compra) " +
-                     "VALUES (datetime('now','localtime'), ?, ?)",
-                     Statement.RETURN_GENERATED_KEYS)) {
+            try {
+                conex.setAutoCommit(false);
 
-                psCompra.setString(1, rutProveedor);
-                psCompra.setLong(2, totalCompra);
-                psCompra.executeUpdate();
+                // Obtener RUT del proveedor
+                String rutProveedor;
+                try (PreparedStatement psProveedor = conex.prepareStatement(
+                         "SELECT rut_proveedor FROM Proveedor WHERE nombre_proveedor = ?")) {
 
-                try (ResultSet rsCompraID = psCompra.getGeneratedKeys()) {
-                    if (rsCompraID.next()) {
-                        idCompra = rsCompraID.getInt(1);
-                    } else {
-                        throw new SQLException("No se pudo obtener el ID de la compra.");
-                    }
-                }
-            }
+                    psProveedor.setString(1, nombreProveedor);
 
-            // Sentencias para detalle_compra y actualización de stock
-            try (PreparedStatement psBuscaProducto = conex.prepareStatement(
-                     "SELECT cod_producto FROM Producto WHERE nombre_producto = ?");
-                 PreparedStatement psDetalle = conex.prepareStatement(
-                     "INSERT INTO detalle_compra (id_compra, cod_producto, cantidad_compra, precio_unitario_compra) " +
-                     "VALUES (?, ?, ?, ?)");
-                 PreparedStatement psActualizaStock = conex.prepareStatement(
-                     "UPDATE Producto SET stock_actual = stock_actual + ? WHERE cod_producto = ?")) {
-
-                for (int i = 0; i < modelo.getRowCount(); i++) {
-                    String nombreProducto = modelo.getValueAt(i, 0).toString();
-                    double cantidad = Double.parseDouble(modelo.getValueAt(i, 1).toString());
-                    int precioUnitarioCompra = Integer.parseInt(modelo.getValueAt(i, 2).toString());
-
-                    // Buscar código del producto
-                    String codProducto;
-                    psBuscaProducto.setString(1, nombreProducto);
-                    try (ResultSet rsProd = psBuscaProducto.executeQuery()) {
-                        if (rsProd.next()) {
-                            codProducto = rsProd.getString("cod_producto");
+                    try (ResultSet rsProv = psProveedor.executeQuery()) {
+                        if (rsProv.next()) {
+                            rutProveedor = rsProv.getString("rut_proveedor");
                         } else {
-                            throw new SQLException("Producto no encontrado: " + nombreProducto);
+                            JOptionPane.showMessageDialog(this, "Proveedor no encontrado.");
+                            conex.rollback();
+                            return;
                         }
                     }
-
-                    // Insertar detalle de compra
-                    psDetalle.setInt(1, idCompra);
-                    psDetalle.setString(2, codProducto);
-                    psDetalle.setDouble(3, cantidad);        // cantidad_compra como REAL en BD
-                    psDetalle.setInt(4, precioUnitarioCompra);
-                    psDetalle.addBatch();
-
-                    // Actualizar stock_actual (sumar la cantidad comprada)
-                    psActualizaStock.setDouble(1, cantidad);
-                    psActualizaStock.setString(2, codProducto);
-                    psActualizaStock.addBatch();
                 }
 
-                psDetalle.executeBatch();
-                psActualizaStock.executeBatch();
+                // Insertar la compra (incluyendo total_compra)
+                int idCompra;
+                try (PreparedStatement psCompra = conex.prepareStatement(
+                         "INSERT INTO Compra (fecha_compra, rut_proveedor, total_compra) " +
+                         "VALUES (datetime('now','localtime'), ?, ?)",
+                         Statement.RETURN_GENERATED_KEYS)) {
+
+                    psCompra.setString(1, rutProveedor);
+                    psCompra.setLong(2, totalCompra);
+                    psCompra.executeUpdate();
+
+                    try (ResultSet rsCompraID = psCompra.getGeneratedKeys()) {
+                        if (rsCompraID.next()) {
+                            idCompra = rsCompraID.getInt(1);
+                        } else {
+                            throw new SQLException("No se pudo obtener el ID de la compra.");
+                        }
+                    }
+                }
+
+                // Sentencias para detalle_compra y actualización de stock
+                try (PreparedStatement psBuscaProducto = conex.prepareStatement(
+                         "SELECT cod_producto FROM Producto WHERE nombre_producto = ?");
+                     PreparedStatement psDetalle = conex.prepareStatement(
+                         "INSERT INTO detalle_compra (id_compra, cod_producto, cantidad_compra, precio_unitario_compra) " +
+                         "VALUES (?, ?, ?, ?)");
+                     PreparedStatement psActualizaStock = conex.prepareStatement(
+                         "UPDATE Producto SET stock_actual = stock_actual + ? WHERE cod_producto = ?")) {
+
+                    for (int i = 0; i < modelo.getRowCount(); i++) {
+                        String nombreProducto = modelo.getValueAt(i, 0).toString();
+                        double cantidad = Double.parseDouble(modelo.getValueAt(i, 1).toString());
+                        int precioUnitarioCompra = Integer.parseInt(modelo.getValueAt(i, 2).toString());
+
+                        // Buscar código del producto
+                        String codProducto;
+                        psBuscaProducto.setString(1, nombreProducto);
+                        try (ResultSet rsProd = psBuscaProducto.executeQuery()) {
+                            if (rsProd.next()) {
+                                codProducto = rsProd.getString("cod_producto");
+                            } else {
+                                throw new SQLException("Producto no encontrado: " + nombreProducto);
+                            }
+                        }
+
+                        // Insertar detalle de compra
+                        psDetalle.setInt(1, idCompra);
+                        psDetalle.setString(2, codProducto);
+                        psDetalle.setDouble(3, cantidad);
+                        psDetalle.setInt(4, precioUnitarioCompra);
+                        psDetalle.addBatch();
+
+                        // Actualizar stock_actual (sumar la cantidad comprada)
+                        psActualizaStock.setDouble(1, cantidad);
+                        psActualizaStock.setString(2, codProducto);
+                        psActualizaStock.addBatch();
+                    }
+
+                    psDetalle.executeBatch();
+                    psActualizaStock.executeBatch();
+                }
+
+                conex.commit();
+                JOptionPane.showMessageDialog(this,
+                    "Compra registrada satisfactoriamente.\nTotal: $ " + totalCompra);
+
+                // Limpiar tabla y total
+                modelo.setRowCount(0);
+                txtTotal.setText("");
+
+            } catch (Exception e) {
+                try {
+                    conex.rollback();
+                } catch (SQLException ignore) {}
+                JOptionPane.showMessageDialog(this, "Error al registrar compra: " + e.getMessage());
+            } finally {
+                try {
+                    conex.setAutoCommit(true);
+                } catch (SQLException ignore) {}
             }
 
-            conex.commit();
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
-                "Compra registrada satisfactoriamente.\nTotal: $ " + totalCompra);
-
-            // Limpiar tabla y total
-            modelo.setRowCount(0);
-            txtTotal.setText("");
-
-        } catch (Exception e) {
-            try { if (conex != null) conex.rollback(); } catch (SQLException ignore) {}
-            JOptionPane.showMessageDialog(this, "Error al registrar compra: " + e.getMessage());
-        } finally {
-            if (conex != null) {
-                try { conex.setAutoCommit(true); } catch (SQLException ignore) {}
-                try { conex.close(); } catch (SQLException ignore) {}
-            }
+                    "Error de conexión al registrar la compra: " + e.getMessage());
         }
     }
-    
 
     public CompraAProveedoresPage() {
         initComponents();
@@ -232,7 +270,6 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             }
         });
 
-        tblCompra.setAutoCreateRowSorter(true);
         tblCompra.setBackground(new java.awt.Color(237, 237, 237));
         tblCompra.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblCompra.setModel(new javax.swing.table.DefaultTableModel(
@@ -242,7 +279,15 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             new String [] {
                 "Producto", "Cantidad", "Precio compra", "Subtotal"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblCompra.setFocusable(false);
         tblCompra.setShowGrid(true);
         jScrollPane7.setViewportView(tblCompra);
@@ -393,12 +438,29 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
             return;
         }
 
-        // Buscar nombre de producto y u medida a partir del código
+        // Buscar nombre de producto y unidad de medida a partir del código
         String nombreProducto;
         String unidadMedida;
-        try (Connection conex = ConexionDB.getConexion();
-             PreparedStatement psProducto = conex.prepareStatement(
-                 "SELECT nombre_producto, unidad_medida FROM Producto WHERE cod_producto = ?")) {
+
+        Connection conex = null;
+        try {
+            conex = ConexionDB.getConexion();
+        } catch (SQLException ex) {
+            System.getLogger(CompraAProveedoresPage.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        if (conex == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String sql = "SELECT nombre_producto, unidad_medida " +
+                     "FROM Producto WHERE cod_producto = ?";
+
+        try (Connection c = conex;
+             PreparedStatement psProducto = c.prepareStatement(sql)) {
 
             psProducto.setString(1, codProducto);
 
@@ -412,14 +474,18 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
                     return;
                 }
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al buscar producto: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Error al buscar producto: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         boolean esKg = "Kilogramo".equalsIgnoreCase(unidadMedida);
         if (!esKg) {
-        // si no es Kilogramo, la cantidad debe ser int
+            // si no es Kilogramo, la cantidad debe ser int
             if (Math.abs(cantidad - Math.round(cantidad)) > 1e-9) {
                 JOptionPane.showMessageDialog(this,
                     "Solo los productos en Kilogramo pueden tener decimales.\n" +

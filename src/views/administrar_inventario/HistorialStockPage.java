@@ -44,15 +44,19 @@ public class HistorialStockPage extends javax.swing.JFrame {
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
+            if (!rs.next()) {
+                JOptionPane.showMessageDialog(this,
+                    "No hay ajustes de stock registrados aún.");
+                return;
+            }
+            do {
                 String nombreProducto = rs.getString("producto");
-                int cantidad = rs.getInt("cantidad_ajustada");
+                double cantidad = rs.getDouble("cantidad_ajustada");
                 String fecha = rs.getString("fecha_ajuste");
                 String motivo = rs.getString("motivo_ajuste");
 
                 model.addRow(new Object[]{nombreProducto, cantidad, fecha, motivo});
-            }
+            } while (rs.next());
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar historial de ajustes: " + e.getMessage());
@@ -93,7 +97,15 @@ public class HistorialStockPage extends javax.swing.JFrame {
             new String [] {
                 "Producto", "Cantidad ajustada", "Fecha", "Motivo de ajuste"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblHistorial.setShowGrid(true);
         jScrollPane1.setViewportView(tblHistorial);
 

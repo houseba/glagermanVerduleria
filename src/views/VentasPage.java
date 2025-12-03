@@ -50,23 +50,32 @@ public class VentasPage extends javax.swing.JFrame {
         double stockActual;
 
         // Buscar producto
-        try (Connection conex = ConexionDB.getConexion();
-             PreparedStatement ps = conex.prepareStatement(
-                 "SELECT nombre_producto, precio_unitario_venta, stock_actual, unidad_medida " +
-                 "FROM Producto WHERE UPPER(cod_producto) = ?")) {
-
-            ps.setString(1, cod);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    JOptionPane.showMessageDialog(this, "No existe un producto con ese código.");
-                    return;
-                }
-                nombre = rs.getString("nombre_producto");
-                precioUnitario = rs.getInt("precio_unitario_venta");
-                stockActual = rs.getDouble("stock_actual");
-                unidadMedida = rs.getString("unidad_medida");
+        try (Connection conex = ConexionDB.getConexion()) {
+            
+            if (conex == null) {
+                JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            String sql = "SELECT nombre_producto, precio_unitario_venta, stock_actual, unidad_medida " +
+                "FROM Producto WHERE UPPER(cod_producto) = ?";
+            
+            try (PreparedStatement ps = conex.prepareStatement(sql)) {
+            ps.setString(1, cod);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        JOptionPane.showMessageDialog(this, "No existe un producto con ese código.");
+                        return;
+                    }
+                    nombre = rs.getString("nombre_producto");
+                    precioUnitario = rs.getInt("precio_unitario_venta");
+                    stockActual = rs.getDouble("stock_actual");
+                    unidadMedida = rs.getString("unidad_medida");
+                }
+            }
+            
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al buscar producto: " + e.getMessage());
             return;
@@ -77,8 +86,9 @@ public class VentasPage extends javax.swing.JFrame {
         if (!esKg) {
             if (Math.abs(cantidad - Math.round(cantidad)) > 1e-9) {
                 JOptionPane.showMessageDialog(this,
-                    "Solo los productos vendidos en Kilogramo pueden tener decimales.\n" +
-                    "El producto " + nombre +  "está en " + unidadMedida +
+                    """
+                    Solo los productos vendidos en Kilogramo pueden tener decimales.
+                    El producto """ + nombre +  " está en " + unidadMedida +
                     ", por lo que la cantidad debe ser un número entero.");
                 return;
             }
@@ -169,6 +179,13 @@ public class VentasPage extends javax.swing.JFrame {
         long totalRedondeado = Math.round(total); // Chile sin decimales
 
         try (Connection conex = ConexionDB.getConexion()) {
+            if (conex == null) {
+                JOptionPane.showMessageDialog(this,
+                    "Error al conectar con la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             try {
                 conex.setAutoCommit(false);
 
@@ -337,7 +354,6 @@ public class VentasPage extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         jLabel4.setText("Código de producto:");
 
-        tblVenta.setAutoCreateRowSorter(true);
         tblVenta.setBackground(new java.awt.Color(237, 237, 237));
         tblVenta.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblVenta.setModel(new javax.swing.table.DefaultTableModel(
@@ -347,7 +363,15 @@ public class VentasPage extends javax.swing.JFrame {
             new String [] {
                 "Producto", "Cantidad", "Precio Unitario", "Subtotal"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblVenta.setShowGrid(true);
         jScrollPane1.setViewportView(tblVenta);
 

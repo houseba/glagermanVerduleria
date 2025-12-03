@@ -221,7 +221,6 @@
       <SubComponents>
         <Component class="javax.swing.JTable" name="tblProveedores">
           <Properties>
-            <Property name="autoCreateRowSorter" type="boolean" value="true"/>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ed" green="ed" red="ed" type="rgb"/>
             </Property>

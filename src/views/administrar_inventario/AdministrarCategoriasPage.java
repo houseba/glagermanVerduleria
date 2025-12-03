@@ -28,6 +28,16 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
         configurarTablaCategorias();
         cargarCategorias();
     }
+    
+    private String normalizarNombreCategoria(String nombre) {
+        if (nombre == null) return "";
+        nombre = nombre.trim();
+        nombre = nombre.replaceAll("\\s+", " ");
+        if (nombre.isEmpty()) return "";
+        // Dejar la primera letra en mayúscula y el resto en minúscula
+        return nombre.substring(0, 1).toUpperCase() + nombre.substring(1).toLowerCase();
+    }
+
 
     private void configurarTablaCategorias() {
         // Modelo con ID oculto + nombre + cantidad de productos
@@ -79,7 +89,7 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
     }
     
     private void agregarCategoria() {
-        String nombre = txtNombre.getText().trim();
+        String nombre = normalizarNombreCategoria(txtNombre.getText());
 
         if (nombre.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -88,7 +98,7 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
         }
 
         // Validar que no exista la categoría
-        String sqlCheck = "SELECT COUNT(*) FROM categoria WHERE nombre_categoria = ?";
+        String sqlCheck = "SELECT COUNT(*) FROM categoria WHERE UPPER(nombre_categoria) = UPPER(?)";
 
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement psCheck = con.prepareStatement(sqlCheck)) {
@@ -127,7 +137,7 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
             return;
         }
 
-        String nuevoNombre = txtNombre.getText().trim();
+        String nuevoNombre = normalizarNombreCategoria(txtNombre.getText());
         if (nuevoNombre.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                 "Debe ingresar el nuevo nombre de la categoría.");
@@ -140,7 +150,7 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
 
         // Validar que no exista otra categoría con ese nombre
         String sqlCheck = "SELECT COUNT(*) FROM categoria " +
-            "WHERE nombre_categoria = ? AND id_categoria <> ?";
+            "WHERE UPPER(nombre_categoria) = UPPER(?) AND id_categoria <> ?";
 
         try (Connection con = ConexionDB.getConexion();
              PreparedStatement psCheck = con.prepareStatement(sqlCheck)) {
@@ -261,7 +271,6 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
         jLabel3.setText("Administrar categorias");
         jLabel3.setToolTipText("");
 
-        tblCategorias.setAutoCreateRowSorter(true);
         tblCategorias.setBackground(new java.awt.Color(237, 237, 237));
         tblCategorias.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         tblCategorias.setModel(new javax.swing.table.DefaultTableModel(
@@ -395,12 +404,10 @@ public class AdministrarCategoriasPage extends javax.swing.JFrame {
 
     private void cmdAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAgregarActionPerformed
         agregarCategoria();
-        cargarCategorias();
     }//GEN-LAST:event_cmdAgregarActionPerformed
 
     private void cmdRenombrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRenombrarActionPerformed
         renombrarCategoria();
-        cargarCategorias();
     }//GEN-LAST:event_cmdRenombrarActionPerformed
 
     private void cmdVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdVolverActionPerformed

@@ -5,8 +5,6 @@ import views.administrar_inventario.AdminInvPage;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-
-import posglagerman.ConexionDB;
 public class InicioPage extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(InicioPage.class.getName());
@@ -18,9 +16,7 @@ public class InicioPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-
-        // Se eliminó la verificación de conexión de aquí.
-        // La comprobación de inicio se realiza una sola vez en main().
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
 
     /**

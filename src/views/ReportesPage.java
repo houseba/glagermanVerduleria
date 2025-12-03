@@ -24,7 +24,8 @@ public class ReportesPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
-        cargarTodo();  
+        cargarTodo(); 
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
    
     private void cargarTodo() {
@@ -270,7 +271,15 @@ public class ReportesPage extends javax.swing.JFrame {
             new String [] {
                 "Fecha", "Total"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblVentas.setFocusable(false);
         tblVentas.setShowGrid(true);
         jScrollPane7.setViewportView(tblVentas);

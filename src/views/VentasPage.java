@@ -16,6 +16,7 @@ public class VentasPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
 
     private void agregarProducto(){
@@ -193,7 +194,7 @@ public class VentasPage extends javax.swing.JFrame {
 
                 // insertar en tabla venta
                 try (PreparedStatement psVenta = conex.prepareStatement(
-                        "INSERT INTO venta (total_venta, fecha_venta) VALUES (?, datetime('now'))",
+                        "INSERT INTO venta (total_venta, fecha_venta) VALUES (?, datetime('now','localtime'))",
                         Statement.RETURN_GENERATED_KEYS)) {
 
                     psVenta.setLong(1, totalRedondeado);

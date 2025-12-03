@@ -24,6 +24,7 @@ public class AdminInvPage extends javax.swing.JFrame {
             initComponents();
             setLocationRelativeTo(null);
             setResizable(false);
+            setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
             
             cargarProductos();
             StockRenderer renderer = new StockRenderer(4, 5); // col 4 = stock actual, col 5 = stock mínimo

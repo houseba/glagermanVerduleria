@@ -19,6 +19,7 @@ public class AdminProPage extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         ListarProveedores();
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
     
     private void ListarProveedores() {

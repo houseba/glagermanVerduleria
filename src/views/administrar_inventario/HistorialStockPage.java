@@ -25,6 +25,7 @@ public class HistorialStockPage extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         setResizable(false);
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
         cargarHistorial();
     }
     
@@ -163,8 +164,8 @@ public class HistorialStockPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
-        InicioPage inicioPage = new InicioPage();
-        inicioPage.setVisible(true);
+        AdminInvPage administrarInvPage = new AdminInvPage();
+        administrarInvPage.setVisible(true);   
         this.dispose();
     }//GEN-LAST:event_cmdSalirActionPerformed
 

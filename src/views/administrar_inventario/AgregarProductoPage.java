@@ -203,6 +203,7 @@ public class AgregarProductoPage extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         cargarCategoria();
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -403,9 +404,9 @@ public class AgregarProductoPage extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdAgregarProductoActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
-        InicioPage inicioPage = new InicioPage();
-        inicioPage.setVisible(true);
-        this.dispose(); // Cerrar el sistema
+        AdminInvPage administrarInvPage = new AdminInvPage();
+        administrarInvPage.setVisible(true);   
+        this.dispose();
     }//GEN-LAST:event_cmdSalirActionPerformed
 
     /**

@@ -58,6 +58,7 @@ public class EditarProducto extends javax.swing.JFrame {
         cargarCategoria();
         setLocationRelativeTo(null);
         setResizable(false);
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
 
         txtCodigo.setText(cod);
         txtNombre.setText(nombre);
@@ -539,8 +540,9 @@ public class EditarProducto extends javax.swing.JFrame {
     }//GEN-LAST:event_cmdEditarActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
-       this.dispose();
-       new AdminInvPage().setVisible(true);
+        AdminInvPage administrarInvPage = new AdminInvPage();
+        administrarInvPage.setVisible(true);   
+        this.dispose();
     }//GEN-LAST:event_cmdSalirActionPerformed
 
     private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed

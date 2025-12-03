@@ -1,0 +1,148 @@
+-- Activa claves foráneas al final (para no molestar al borrar/crear)
+PRAGMA foreign_keys = OFF;
+
+
+----------------------------------------------------
+-- 1) ELIMINAR TABLAS SI EXISTEN (ORDEN CORRECTO)
+----------------------------------------------------
+DROP TABLE IF EXISTS detalle_compra;
+DROP TABLE IF EXISTS detalle_venta;
+DROP TABLE IF EXISTS ajuste_inventario;
+DROP TABLE IF EXISTS compra;
+DROP TABLE IF EXISTS venta;
+DROP TABLE IF EXISTS Producto;
+DROP TABLE IF EXISTS Categoria;
+DROP TABLE IF EXISTS Proveedor;
+
+----------------------------------------------------
+-- 2) CREAR TABLAS
+----------------------------------------------------
+
+-- PROVEEDOR
+CREATE TABLE Proveedor (
+    rut_proveedor      TEXT PRIMARY KEY,          -- Ej: '762623404'
+    nombre_proveedor   TEXT NOT NULL,
+    direccion_proveedor TEXT,
+    contacto_proveedor TEXT
+);
+
+-- CATEGORIA
+CREATE TABLE Categoria (
+    id_categoria     INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre_categoria TEXT NOT NULL UNIQUE         -- Evita categorías duplicadas
+);
+
+-- PRODUCTO
+CREATE TABLE Producto (
+    cod_producto          TEXT PRIMARY KEY,       -- Lo manejas como String en Java
+    nombre_producto       TEXT NOT NULL UNIQUE,   -- Tu lógica evita nombres duplicados
+    precio_unitario_venta INTEGER NOT NULL CHECK (precio_unitario_venta > 0),
+    unidad_medida         TEXT NOT NULL
+        CHECK (unidad_medida IN ('Unidad','Gramo','Kilogramo')),
+    stock_actual          REAL NOT NULL DEFAULT 0 CHECK (stock_actual >= 0),
+    stock_minimo          REAL NOT NULL DEFAULT 0 CHECK (stock_minimo >= 0),
+    id_categoria          INTEGER NOT NULL,
+    FOREIGN KEY (id_categoria)
+        REFERENCES Categoria(id_categoria)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+-- COMPRA
+CREATE TABLE compra (
+    id_compra     INTEGER PRIMARY KEY AUTOINCREMENT,
+    total_compra  INTEGER NOT NULL CHECK (total_compra >= 0),
+    fecha_compra  DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
+    rut_proveedor TEXT NOT NULL,
+    FOREIGN KEY (rut_proveedor)
+        REFERENCES Proveedor(rut_proveedor)
+        ON UPDATE CASCADE         -- Si cambias el RUT, las compras se actualizan
+        ON DELETE RESTRICT        -- No puedes borrar proveedor con compras
+);
+
+-- DETALLE_COMPRA
+CREATE TABLE detalle_compra (
+    id_detalle_compra      INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_compra              INTEGER NOT NULL,
+    cod_producto           TEXT NOT NULL,
+    cantidad_compra        REAL NOT NULL CHECK (cantidad_compra > 0),
+    precio_unitario_compra INTEGER NOT NULL CHECK (precio_unitario_compra > 0),
+    FOREIGN KEY (id_compra)
+        REFERENCES compra(id_compra)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,        -- Si borras la compra, se borran sus detalles
+    FOREIGN KEY (cod_producto)
+        REFERENCES Producto(cod_producto)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT        -- No puedes borrar producto si tiene compras
+);
+
+-- VENTA
+CREATE TABLE venta (
+    id_venta    INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_venta DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
+    total_venta INTEGER NOT NULL CHECK (total_venta >= 0)
+);
+
+-- DETALLE_VENTA
+CREATE TABLE detalle_venta (
+    id_detalle_venta     INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_venta             INTEGER NOT NULL,
+    cod_producto         TEXT NOT NULL,
+    cantidad_venta       REAL NOT NULL CHECK (cantidad_venta > 0),
+    precio_unitario_venta INTEGER NOT NULL CHECK (precio_unitario_venta > 0),
+    FOREIGN KEY (id_venta)
+        REFERENCES venta(id_venta)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,        -- Si borras la venta, se borran sus detalles
+    FOREIGN KEY (cod_producto)
+        REFERENCES Producto(cod_producto)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT        -- No puedes borrar producto si tiene ventas
+);
+
+-- AJUSTE_INVENTARIO
+CREATE TABLE ajuste_inventario (
+    id_ajuste        INTEGER PRIMARY KEY AUTOINCREMENT,
+    cod_producto     TEXT NOT NULL,
+    cantidad_ajustada REAL NOT NULL CHECK (cantidad_ajustada <> 0),
+    fecha_ajuste     DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
+    motivo_ajuste    TEXT NOT NULL,
+    FOREIGN KEY (cod_producto)
+        REFERENCES Producto(cod_producto)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+----------------------------------------------------
+-- 3) ÍNDICES RECOMENDADOS (MEJORA RENDIMIENTO)
+----------------------------------------------------
+
+CREATE INDEX idx_producto_nombre
+    ON Producto(nombre_producto);
+
+CREATE INDEX idx_producto_categoria
+    ON Producto(id_categoria);
+
+CREATE INDEX idx_compra_proveedor
+    ON compra(rut_proveedor);
+
+CREATE INDEX idx_detalle_compra_compra
+    ON detalle_compra(id_compra);
+
+CREATE INDEX idx_detalle_compra_producto
+    ON detalle_compra(cod_producto);
+
+CREATE INDEX idx_detalle_venta_venta
+    ON detalle_venta(id_venta);
+
+CREATE INDEX idx_detalle_venta_producto
+    ON detalle_venta(cod_producto);
+
+CREATE INDEX idx_ajuste_inventario_producto
+    ON ajuste_inventario(cod_producto);
+
+COMMIT;
+
+-- A partir de aquí las foreign keys quedan activas
+PRAGMA foreign_keys = ON;

@@ -199,6 +199,7 @@ public class CompraAProveedoresPage extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         cargarProveedores();
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
     }
 
     /**

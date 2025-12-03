@@ -62,9 +62,16 @@ public class EditarProducto extends javax.swing.JFrame {
 
         txtCodigo.setText(cod);
         txtNombre.setText(nombre);
-        txtPrecio.setText(precio);
         txtStockActual.setText(stock);
         txtStockMinimo.setText(stockMin);
+        try {
+            double p = Double.parseDouble(precio.replace(",", "."));
+            int pEntero = (int) Math.round(p);
+            txtPrecio.setText(String.valueOf(pEntero));
+        } catch (NumberFormatException e) {
+            txtPrecio.setText(precio);
+        }
+
 
         cmbUnidadMedida.setSelectedItem(unidad);
         cmbCategoria.setSelectedItem(categoria);

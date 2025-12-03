@@ -15,7 +15,7 @@ public class ValidarRut {
         // Eliminar puntos y guiones
         rut = rut.replace(".", "").replace("-", "").toUpperCase();
 
-        // Validar formato general (7 u 8 dígitos + dígito verificador)
+        // Validar formato (7 u 8 dígitos + dígito verificador)
         if (!rut.matches("\\d{7,8}[0-9K]")) return false;
 
         String cuerpo = rut.substring(0, rut.length() - 1);

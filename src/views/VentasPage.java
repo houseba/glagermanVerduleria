@@ -89,7 +89,7 @@ public class VentasPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this,
                     """
                     Solo los productos vendidos en Kilogramo pueden tener decimales.
-                    El producto """ + nombre +  " está en " + unidadMedida +
+                    El producto """ + " " + nombre +  " está en " + unidadMedida +
                     ", por lo que la cantidad debe ser un número entero.");
                 return;
             }
@@ -331,6 +331,7 @@ public class VentasPage extends javax.swing.JFrame {
         txtCantidad = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         cmdLimpiarTabla = new javax.swing.JButton();
+        cmdEliminarProducto = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Ventas");
@@ -413,6 +414,15 @@ public class VentasPage extends javax.swing.JFrame {
             }
         });
 
+        cmdEliminarProducto.setBackground(new java.awt.Color(244, 168, 168));
+        cmdEliminarProducto.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        cmdEliminarProducto.setText("Eliminar producto");
+        cmdEliminarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmdEliminarProductoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -446,7 +456,9 @@ public class VentasPage extends javax.swing.JFrame {
                                         .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(txtProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(cmdAgregarProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(cmdAgregarProducto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(cmdEliminarProducto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
                 .addGap(0, 34, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -462,7 +474,8 @@ public class VentasPage extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
+                    .addComponent(jLabel6)
+                    .addComponent(cmdEliminarProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -474,7 +487,7 @@ public class VentasPage extends javax.swing.JFrame {
                     .addComponent(cmdConfirmarVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdLimpiarTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(22, 22, 22))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -509,6 +522,46 @@ public class VentasPage extends javax.swing.JFrame {
         limpiarTabla();
     }//GEN-LAST:event_cmdLimpiarTablaActionPerformed
 
+    private void cmdEliminarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEliminarProductoActionPerformed
+        DefaultTableModel model = (DefaultTableModel) tblVenta.getModel();
+        int fila = tblVenta.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un producto a eliminar en la tabla.");
+            return;
+        }
+
+        int ok = JOptionPane.showConfirmDialog(
+                this,
+                "¿Eliminar el producto seleccionado?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Eliminar fila
+        model.removeRow(fila);
+
+        // Recalcular total
+        double total = 0.0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object v = model.getValueAt(i, 3); // columna de subtotal
+            if (v != null) {
+                total += Double.parseDouble(v.toString());
+            }
+        }
+
+        if (model.getRowCount() == 0) {
+            txtTotal.setText("");
+        } else {
+            long totalRedondeado = Math.round(total);
+            txtTotal.setText(String.valueOf(totalRedondeado));
+        }
+    }//GEN-LAST:event_cmdEliminarProductoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -538,6 +591,7 @@ public class VentasPage extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton cmdAgregarProducto;
     private javax.swing.JButton cmdConfirmarVenta;
+    private javax.swing.JButton cmdEliminarProducto;
     private javax.swing.JButton cmdLimpiarTabla;
     private javax.swing.JButton cmdVolver;
     private javax.swing.JLabel jLabel3;

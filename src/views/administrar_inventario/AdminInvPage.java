@@ -24,8 +24,8 @@ public class AdminInvPage extends javax.swing.JFrame {
             initComponents();
             setLocationRelativeTo(null);
             setResizable(false);
+            txtBuscar.addActionListener(e -> cmdBuscar.doClick());
             setIconImage(new javax.swing.ImageIcon(getClass().getResource("/images/gg.png")).getImage());
-            
             cargarProductos();
             StockRenderer renderer = new StockRenderer(4, 5); // col 4 = stock actual, col 5 = stock mínimo
             tblCompra.setDefaultRenderer(Object.class, renderer);
@@ -91,7 +91,7 @@ public class AdminInvPage extends javax.swing.JFrame {
 
         private void buscarProducto() {
 
-            String busqueda = jTextField1.getText().trim();
+            String busqueda = txtBuscar.getText().trim();
 
             DefaultTableModel model = (DefaultTableModel) tblCompra.getModel();
             model.setRowCount(0);
@@ -195,8 +195,8 @@ public class AdminInvPage extends javax.swing.JFrame {
         jScrollPane7 = new javax.swing.JScrollPane();
         tblCompra = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txtBuscar = new javax.swing.JTextField();
+        cmdBuscar = new javax.swing.JButton();
         cmdSalir = new javax.swing.JButton();
         cmdEditar = new javax.swing.JButton();
         cmdEliminar = new javax.swing.JButton();
@@ -239,17 +239,17 @@ public class AdminInvPage extends javax.swing.JFrame {
 
         jLabel1.setText("Búsqueda de productos por nombre:");
 
-        jTextField1.setBackground(new java.awt.Color(237, 237, 237));
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtBuscar.setBackground(new java.awt.Color(237, 237, 237));
+        txtBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtBuscarActionPerformed(evt);
             }
         });
 
-        jButton1.setText("Buscar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        cmdBuscar.setText("Buscar");
+        cmdBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                cmdBuscarActionPerformed(evt);
             }
         });
 
@@ -321,9 +321,9 @@ public class AdminInvPage extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cmdBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(6, 6, 6)))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -351,11 +351,11 @@ public class AdminInvPage extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1)
-                        .addComponent(jButton1)))
+                        .addComponent(cmdBuscar))
+                    .addComponent(txtBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -375,13 +375,13 @@ public class AdminInvPage extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtBuscarActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void cmdBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdBuscarActionPerformed
         buscarProducto();        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_cmdBuscarActionPerformed
 
     private void cmdSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSalirActionPerformed
         InicioPage inicioPage = new InicioPage();
@@ -460,17 +460,17 @@ public class AdminInvPage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cmdAgregar;
+    private javax.swing.JButton cmdBuscar;
     private javax.swing.JButton cmdCategorias;
     private javax.swing.JButton cmdEditar;
     private javax.swing.JButton cmdEliminar;
     private javax.swing.JButton cmdHistorial;
     private javax.swing.JButton cmdSalir;
     private javax.swing.JButton cmdSalir1;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JScrollPane jScrollPane7;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTable tblCompra;
+    private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
 }
